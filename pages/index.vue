@@ -148,7 +148,7 @@ const submit = async () => {
       if (emailLower === "bazanjuanpa@gmail.com") {
         router.push('/instancias/Grijalba');
       } else if (emailLower === "elroby75@hotmail.com") {
-        router.push('/instancias/Grijalba');
+        router.push('/instancias/Soletanche');
       } else {
         router.push('/instancias/AlefCompany');
       }
