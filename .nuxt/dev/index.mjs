@@ -3,8 +3,10 @@ import { Server } from 'node:http';
 import { resolve, dirname, join } from 'node:path';
 import nodeCrypto from 'node:crypto';
 import { parentPort, threadId } from 'node:worker_threads';
-import { defineEventHandler, handleCacheHeaders, splitCookiesString, createEvent, fetchWithEvent, isEvent, eventHandler, setHeaders, sendRedirect, proxyRequest, getRequestHeader, setResponseHeaders, setResponseStatus, send, getRequestHeaders, setResponseHeader, appendResponseHeader, getRequestURL, getResponseHeader, removeResponseHeader, createError, getQuery as getQuery$1, readBody, createApp, createRouter as createRouter$1, toNodeListener, lazyEventHandler, getResponseStatus, getRouterParam, getResponseStatusText } from 'file://C:/Users/elrob/Desktop/khozaz/trabajos/flowx/DASHBOARDv1flowx/flowxdashboard/flowxdashboardv3/node_modules/h3/dist/index.mjs';
+import { defineEventHandler, handleCacheHeaders, splitCookiesString, createEvent, fetchWithEvent, isEvent, eventHandler, setHeaders, sendRedirect, proxyRequest, getRequestHeader, setResponseHeaders, setResponseStatus, send, getRequestHeaders, setResponseHeader, appendResponseHeader, getRequestURL, getResponseHeader, removeResponseHeader, createError, getQuery as getQuery$1, readBody, createApp, createRouter as createRouter$1, toNodeListener, lazyEventHandler, getResponseStatus, getRouterParam, setCookie, getHeader, getCookie, getResponseStatusText } from 'file://C:/Users/elrob/Desktop/khozaz/trabajos/flowx/DASHBOARDv1flowx/flowxdashboard/flowxdashboardv3/node_modules/h3/dist/index.mjs';
 import { escapeHtml } from 'file://C:/Users/elrob/Desktop/khozaz/trabajos/flowx/DASHBOARDv1flowx/flowxdashboard/flowxdashboardv3/node_modules/@vue/shared/dist/shared.cjs.js';
+import bcrypt from 'file://C:/Users/elrob/Desktop/khozaz/trabajos/flowx/DASHBOARDv1flowx/flowxdashboard/flowxdashboardv3/node_modules/bcryptjs/index.js';
+import { createServerClient, parseCookieHeader } from 'file://C:/Users/elrob/Desktop/khozaz/trabajos/flowx/DASHBOARDv1flowx/flowxdashboard/flowxdashboardv3/node_modules/@supabase/ssr/dist/main/index.js';
 import { createRenderer, getRequestDependencies, getPreloadLinks, getPrefetchLinks } from 'file://C:/Users/elrob/Desktop/khozaz/trabajos/flowx/DASHBOARDv1flowx/flowxdashboard/flowxdashboardv3/node_modules/vue-bundle-renderer/dist/runtime.mjs';
 import { parseURL, withoutBase, joinURL, getQuery, withQuery, withTrailingSlash, decodePath, withLeadingSlash, withoutTrailingSlash, joinRelativeURL } from 'file://C:/Users/elrob/Desktop/khozaz/trabajos/flowx/DASHBOARDv1flowx/flowxdashboard/flowxdashboardv3/node_modules/ufo/dist/index.mjs';
 import { renderToString } from 'file://C:/Users/elrob/Desktop/khozaz/trabajos/flowx/DASHBOARDv1flowx/flowxdashboard/flowxdashboardv3/node_modules/vue/server-renderer/index.mjs';
@@ -669,6 +671,13 @@ const _inlineRuntimeConfig = {
       },
       "clientOptions": {}
     }
+  },
+  "n8nApiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiYzdlNGE3Yy05OWM5LTQ4YzEtOWJiNS00MTA4NzBhODIwZmQiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwiaWF0IjoxNzY5NzkxNTQ0fQ.oov84sDLA-l82YK3T_Gqe_dl21hNL4z1HuUKRE3P4MM",
+  "n8nBaseUrl": "https://n8n.flowxperu.com/api/v1",
+  "n8nWorkflows": {
+    "alegrated": "",
+    "brada": "",
+    "healup": ""
   },
   "supabase": {
     "serviceKey": "",
@@ -1378,7 +1387,7 @@ const _QZ3y86ptnGoHD3DbexePFO_WnylNrVdQbXIcpFz3Vs4 = (function(nitro) {
 
 const rootDir = "C:/Users/elrob/Desktop/khozaz/trabajos/flowx/DASHBOARDv1flowx/flowxdashboard/flowxdashboardv3";
 
-const appHead = {"meta":[{"name":"viewport","content":"width=device-width, initial-scale=1"},{"charset":"utf-8"},{"hid":"description","name":"description","content":"Template to get you up and running with Nuxt 3 & Vuetify 3"},{"property":"og:site_name","content":"Vuetify 3 + Nuxt 3 Starter"},{"hid":"og:type","property":"og:type","content":"website"},{"hid":"og:url","property":"og:url","content":"https://vuetify3nuxt3starter.behonbaker.com/"},{"hid":"og:image:secure_url","property":"og:image:secure_url","content":"https://vuetify3nuxt3starter.behonbaker.com/starter.png"},{"hid":"og:title","property":"og:title","content":"Vuetify 3 + Nuxt 3 Starter"},{"hid":"og:description","property":"og:description","content":"Template to get you up and running with Nuxt 3 & Vuetify 3"},{"hid":"og:image","property":"og:image","content":"https://vuetify3nuxt3starter.behonbaker.com/starter.png"},{"name":"twitter:card","content":"summary_large_image"},{"hid":"twitter:url","name":"twitter:url","content":"https://vuetify3nuxt3starter.behonbaker.com/"},{"hid":"twitter:title","name":"twitter:title","content":"Vuetify 3 + Nuxt 3 Starter"},{"hid":"twitter:description","name":"twitter:description","content":"Template to get you up and running with Nuxt 3 & Vuetify 3"},{"hid":"twitter:image","name":"twitter:image","content":"https://vuetify3nuxt3starter.behonbaker.com/starter.png"}],"link":[{"rel":"stylesheet","href":"https://rsms.me/inter/inter.css"},{"rel":"preconnect","href":"https://rsms.me/"},{"rel":"icon","type":"image/x-icon","href":"/favicon.ico"},{"rel":"canonical","href":"https://vuetify3nuxt3starter.behonbaker.com/"}],"style":[],"script":[],"noscript":[],"title":"Vuetify 3 + Nuxt 3 Starter","titleTemplate":"%s | Vuetify 3 + Nuxt 3 Starter"};
+const appHead = {"meta":[{"name":"viewport","content":"width=device-width, initial-scale=1"},{"charset":"utf-8"},{"hid":"description","name":"description","content":"Dashboard FlowX"},{"property":"og:site_name","content":"FlowX"},{"hid":"og:type","property":"og:type","content":"website"},{"hid":"og:url","property":"og:url","content":"https://flowxperu.com/"},{"hid":"og:image:secure_url","property":"og:image:secure_url","content":"assets/img/FLOWLOGO.png"},{"hid":"og:title","property":"og:title","content":"FlowX"},{"hid":"og:description","property":"og:description","content":"Dashboard FlowX"},{"hid":"og:image","property":"og:image","content":"assets/img/FLOWLOGO.png"},{"name":"twitter:card","content":"summary_large_image"},{"hid":"twitter:url","name":"twitter:url","content":"https://flowxperu.com/"},{"hid":"twitter:title","name":"twitter:title","content":"FlowX"},{"hid":"twitter:description","name":"twitter:description","content":"Dashboard FlowX"},{"hid":"twitter:image","name":"twitter:image","content":"assets/img/FLOWLOGO.png"}],"link":[{"rel":"stylesheet","href":"https://rsms.me/inter/inter.css"},{"rel":"preconnect","href":"https://rsms.me/"},{"rel":"icon","type":"image/x-icon","href":"/favicon.ico"},{"rel":"canonical","href":"https://flowxperu.com/"}],"style":[],"script":[],"noscript":[],"title":"FlowX","titleTemplate":"%s | Dashboard FlowX"};
 
 const appRootTag = "div";
 
@@ -1469,22 +1478,7 @@ const plugins = [
 _HM4hVZBg2wVXVghFm7PgyPicFxe06jwhNOpy2fNZM
 ];
 
-const assets = {
-  "/index.mjs": {
-    "type": "text/javascript; charset=utf-8",
-    "etag": "\"15821-3UNsY2B2zPwFgNov24HQOKGteN4\"",
-    "mtime": "2026-03-25T03:03:04.889Z",
-    "size": 88097,
-    "path": "index.mjs"
-  },
-  "/index.mjs.map": {
-    "type": "application/json",
-    "etag": "\"50e4f-n9xXNZaijJ1qlmrUVpjTg/dR1FQ\"",
-    "mtime": "2026-03-25T03:03:04.889Z",
-    "size": 331343,
-    "path": "index.mjs.map"
-  }
-};
+const assets = {};
 
 function readAsset (id) {
   const serverDir = dirname$1(fileURLToPath(globalThis._importMeta_.url));
@@ -1894,10 +1888,18 @@ async function getIslandContext(event) {
   return ctx;
 }
 
+const _lazy_R4JboI = () => Promise.resolve().then(function () { return verifyLegacy_post$1; });
+const _lazy_a7GvMy = () => Promise.resolve().then(function () { return toggleWorkflow_post$1; });
+const _lazy_XpKRvf = () => Promise.resolve().then(function () { return create_post$1; });
+const _lazy_4YvbjP = () => Promise.resolve().then(function () { return index_get$1; });
 const _lazy__vBU7R = () => Promise.resolve().then(function () { return renderer$1; });
 
 const handlers = [
   { route: '', handler: _9a9Goe, lazy: false, middleware: true, method: undefined },
+  { route: '/api/auth/verify-legacy', handler: _lazy_R4JboI, lazy: true, middleware: false, method: "post" },
+  { route: '/api/n8n/toggle-workflow', handler: _lazy_a7GvMy, lazy: true, middleware: false, method: "post" },
+  { route: '/api/users/create', handler: _lazy_XpKRvf, lazy: true, middleware: false, method: "post" },
+  { route: '/api/users', handler: _lazy_4YvbjP, lazy: true, middleware: false, method: "get" },
   { route: '/__nuxt_error', handler: _lazy__vBU7R, lazy: true, middleware: false, method: undefined },
   { route: '/__nuxt_island/**', handler: _SxA8c9, lazy: false, middleware: false, method: undefined },
   { route: '/**', handler: _lazy__vBU7R, lazy: true, middleware: false, method: undefined }
@@ -2229,6 +2231,288 @@ const styles = {};
 const styles$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
   __proto__: null,
   default: styles
+}, Symbol.toStringTag, { value: 'Module' }));
+
+async function fetchWithRetry(req, init) {
+  const retries = 3;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await fetch(req, init);
+    } catch (error) {
+      if (init?.signal?.aborted) {
+        throw error;
+      }
+      if (attempt === retries) {
+        console.error(`Error fetching request ${req}`, error, init);
+        throw error;
+      }
+      console.warn(`Retrying fetch attempt ${attempt + 1} for request: ${req}`);
+      await new Promise((resolve) => setTimeout(resolve, 100 * attempt));
+    }
+  }
+  throw new Error("Unreachable code");
+}
+
+function setCookies(event, cookies) {
+  const response = event.node.res;
+  const headersWritable = () => !response.headersSent && !response.writableEnded;
+  if (!headersWritable()) {
+    return;
+  }
+  for (const { name, value, options } of cookies) {
+    if (!headersWritable()) {
+      break;
+    }
+    setCookie(event, name, value, options);
+  }
+}
+
+const serverSupabaseClient = async (event) => {
+  if (!event.context._supabaseClient) {
+    const { url, key, cookiePrefix, cookieOptions, clientOptions: { auth = {}, global = {} } } = useRuntimeConfig(event).public.supabase;
+    event.context._supabaseClient = createServerClient(url, key, {
+      auth,
+      cookies: {
+        getAll: () => parseCookieHeader(getHeader(event, "Cookie") ?? ""),
+        setAll: (cookies) => setCookies(event, cookies)
+      },
+      cookieOptions: {
+        ...cookieOptions,
+        name: cookiePrefix
+      },
+      global: {
+        fetch: fetchWithRetry,
+        ...global
+      }
+    });
+  }
+  return event.context._supabaseClient;
+};
+
+const serverSupabaseUser = async (event) => {
+  const client = await serverSupabaseClient(event);
+  const { data, error } = await client.auth.getClaims();
+  if (error) {
+    throw createError({ statusMessage: error?.message });
+  }
+  return data?.claims ?? null;
+};
+
+const verifyLegacy_post = defineEventHandler(async (event) => {
+  const client = await serverSupabaseClient(event);
+  const body = await readBody(event);
+  const { email, password } = body;
+  if (!email || !password) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Email and password required"
+    });
+  }
+  const { data: user, error } = await client.from("dashboardlogin").select("*").eq("email", email).single();
+  if (error || !user) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: "Invalid credentials (User not found)"
+    });
+  }
+  const validPassword = await bcrypt.compare(password, user.password);
+  if (!validPassword) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: "Invalid credentials (Password mismatch)"
+    });
+  }
+  return {
+    success: true,
+    user: {
+      id: user.id,
+      email: user.email,
+      full_name: user.full_name || user.nombre,
+      role: user.role,
+      company_id: user.company_id
+    }
+  };
+});
+
+const verifyLegacy_post$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: verifyLegacy_post
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const toggleWorkflow_post = defineEventHandler(async (event) => {
+  var _a, _b, _c;
+  const config = useRuntimeConfig();
+  const body = await readBody(event);
+  console.log("=== INICIO DE DIAGN\xD3STICO ===");
+  console.log("Empresa solicitada:", body.clientKey);
+  console.log("Estado solicitado (active):", body.active);
+  console.log("URL Base N8N configurada:", config.n8nBaseUrl);
+  console.log("\xBFExiste API Key?:", config.n8nApiKey ? "S\xCD (Longitud: " + config.n8nApiKey.length + ")" : "NO - EST\xC1 VAC\xCDA");
+  const targetId = config.n8nWorkflows[body.clientKey];
+  console.log(`ID encontrado para '${body.clientKey}':`, targetId ? targetId : "NO ENCONTRADO/UNDEFINED");
+  if (!targetId) {
+    console.error("ERROR: No se encontr\xF3 ID para la empresa solicitada.");
+    throw createError({ statusCode: 400, statusMessage: "ID de empresa no configurado" });
+  }
+  const cleanBaseUrl = config.n8nBaseUrl.replace(/\/$/, "");
+  const action = body.active ? "activate" : "deactivate";
+  const finalUrl = `${cleanBaseUrl}/workflows/${targetId}/${action}`;
+  console.log("Intentando conectar a URL:", finalUrl);
+  try {
+    const response = await $fetch(finalUrl, {
+      method: "POST",
+      headers: {
+        "X-N8N-API-KEY": config.n8nApiKey,
+        "Content-Type": "application/json"
+      },
+      body: { active: body.active }
+    });
+    console.log("Respuesta de N8N: \xC9XITO");
+    return response;
+  } catch (error) {
+    console.error("=== ERROR FATAL AL CONECTAR CON N8N ===");
+    console.error("Status Code:", (_a = error.response) == null ? void 0 : _a.status);
+    console.error("Mensaje:", error.message);
+    console.error("Data:", (_b = error.response) == null ? void 0 : _b._data);
+    throw createError({
+      statusCode: ((_c = error.response) == null ? void 0 : _c.status) || 500,
+      statusMessage: `Fallo N8N: ${error.message}`
+    });
+  }
+});
+
+const toggleWorkflow_post$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: toggleWorkflow_post
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const create_post = defineEventHandler(async (event) => {
+  const client = await serverSupabaseClient(event);
+  const body = await readBody(event);
+  const { email, password, full_name, role, company_id } = body;
+  let user = await serverSupabaseUser(event);
+  let userEmail = user == null ? void 0 : user.email;
+  if (!user) {
+    const dashboardCookie = getCookie(event, "dashboard_session");
+    if (dashboardCookie) {
+      try {
+        const sessionData = typeof dashboardCookie === "string" ? JSON.parse(dashboardCookie) : dashboardCookie;
+        if (sessionData && sessionData.email) {
+          console.log("Autenticado via dashboard_session cookie:", sessionData.email);
+          userEmail = sessionData.email;
+          user = { email: sessionData.email };
+        }
+      } catch (e) {
+        console.error("Error parseando dashboard_session:", e);
+      }
+    }
+  }
+  if (!user || !userEmail) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: "Unauthorized: No session found"
+    });
+  }
+  const { data: currentUserProfile, error: profileError } = await client.from("dashboardlogin").select("*").eq("email", userEmail).single();
+  if (profileError || !currentUserProfile) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: "Forbidden: User profile not found"
+    });
+  }
+  const requesterRole = currentUserProfile.role;
+  const requesterCompany = currentUserProfile.company_id;
+  if (role === "superadmin") {
+    throw createError({
+      statusCode: 403,
+      statusMessage: "Forbidden: Cannot create superadmin users"
+    });
+  }
+  if (requesterRole === "superadmin") ; else if (requesterRole === "admin") {
+    if (company_id && company_id !== requesterCompany) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: "Forbidden: You can only create users for your own company"
+      });
+    }
+  } else {
+    throw createError({
+      statusCode: 403,
+      statusMessage: "Forbidden: You do not have permission to create users"
+    });
+  }
+  const targetCompanyId = requesterRole === "admin" ? requesterCompany : company_id || requesterCompany;
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+  const { data: newUser, error: insertError } = await client.from("dashboardlogin").insert([
+    {
+      email,
+      password: hashedPassword,
+      full_name,
+      role,
+      company_id: targetCompanyId,
+      created_at: (/* @__PURE__ */ new Date()).toISOString()
+    }
+  ]).select().single();
+  if (insertError) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: insertError.message
+    });
+  }
+  return { success: true, user: newUser };
+});
+
+const create_post$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: create_post
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const index_get = defineEventHandler(async (event) => {
+  const client = await serverSupabaseClient(event);
+  const query = getQuery$1(event);
+  const requestCompanyId = query.company_id;
+  let user = await serverSupabaseUser(event);
+  let userEmail = user == null ? void 0 : user.email;
+  if (!user) {
+    const dashboardCookie = getCookie(event, "dashboard_session");
+    if (dashboardCookie) {
+      try {
+        const sessionData = typeof dashboardCookie === "string" ? JSON.parse(dashboardCookie) : dashboardCookie;
+        if (sessionData && sessionData.email) {
+          userEmail = sessionData.email;
+          user = { email: sessionData.email };
+        }
+      } catch (e) {
+      }
+    }
+  }
+  if (!user || !userEmail) {
+    throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
+  }
+  const { data: currentUserProfile, error: profileError } = await client.from("dashboardlogin").select("*").eq("email", userEmail).single();
+  if (profileError || !currentUserProfile) {
+    throw createError({ statusCode: 403, statusMessage: "Forbidden" });
+  }
+  const userRole = currentUserProfile.role;
+  const userCompany = currentUserProfile.company_id;
+  let targetCompany = userCompany;
+  if (userRole === "superadmin" && requestCompanyId) {
+    targetCompany = requestCompanyId;
+  } else if (userRole !== "superadmin") {
+    targetCompany = userCompany;
+  }
+  let supabaseQuery = client.from("dashboardlogin").select("id, full_name, email, role, company_id").eq("company_id", targetCompany).order("created_at", { ascending: false });
+  const { data: users, error: fetchError } = await supabaseQuery;
+  if (fetchError) {
+    throw createError({ statusCode: 500, statusMessage: fetchError.message });
+  }
+  return { users };
+});
+
+const index_get$1 = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  default: index_get
 }, Symbol.toStringTag, { value: 'Module' }));
 
 function renderPayloadResponse(ssrContext) {

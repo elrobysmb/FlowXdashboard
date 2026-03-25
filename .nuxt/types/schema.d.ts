@@ -107,6 +107,18 @@ declare module 'nuxt/schema' {
       cdnURL: string,
    },
 
+   n8nApiKey: string,
+
+   n8nBaseUrl: string,
+
+   n8nWorkflows: {
+      alegrated: string,
+
+      brada: string,
+
+      healup: string,
+   },
+
    nitro: {
       envPrefix: string,
    },
