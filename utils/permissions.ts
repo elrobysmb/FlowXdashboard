@@ -1,7 +1,8 @@
 // Definición de Dashboards
 export const dashboards = [
     { name: 'Grijalva', path: '/instancias/Grijalba', icon: 'mdi-domain', logo: 'grijalvalogo.png' },
-    { name: 'Soletanche', path: '/instancias/Soletanche', icon: 'mdi-domain', logo: 'soletanche_logo.jpg' }
+    { name: 'Soletanche', path: '/instancias/Soletanche', icon: 'mdi-domain', logo: 'soletanche_logo.jpg' },
+    { name: 'Jamleo SAC', path: '/instancias/Jamleo', icon: 'mdi-truck', logo: 'Jamleo SAC LOGO.jpeg' }
 ]
 
 // Tipos para la sesión de usuario
@@ -112,6 +113,14 @@ export function canAccessGrijalva(session: UserSession | null): boolean {
     return cid === 'grijalva' || cid.includes('grijalva')
 }
 
+export function canAccessJamleo(session: UserSession | null): boolean {
+    if (!session) return false
+    if (isSuperAdmin(session)) return true
+
+    const cid = normalize(session.company_id)
+    return cid === 'jamleo' || cid.includes('jamleo')
+}
+
 export function canAccessSoletanche(session: UserSession | null): boolean {
     if (!session) return false
     if (isSuperAdmin(session)) return true
@@ -134,6 +143,7 @@ export function getDashboardPathByCompanyId(companyId: string | undefined | null
     if (normalizedId === 'origitec' || normalizedId.includes('origitec')) return '/instancias/Origitec'
     if (normalizedId === 'grijalva' || normalizedId.includes('grijalva')) return '/instancias/Grijalba'
     if (normalizedId === 'soletanche' || normalizedId.includes('soletanche')) return '/instancias/Soletanche'
+    if (normalizedId === 'jamleo' || normalizedId.includes('jamleo')) return '/instancias/Jamleo'
 
     return '/'
 }
