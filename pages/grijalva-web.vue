@@ -189,7 +189,7 @@
                 </v-row>
                 <v-divider class="my-8 border-opacity-10"></v-divider>
                 <div class="text-center text-caption text-grey">
-                    &copy; {{ new Date().getFullYear() }} Grijalba. Todos los derechos reservados.
+                    &copy; {{ new Date().getFullYear() }} Grijalva. Todos los derechos reservados.
                 </div>
             </div>
         </footer>

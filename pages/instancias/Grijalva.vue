@@ -5,7 +5,7 @@
       <div class="sidebar-header">
         <div class="logo" style="gap: 0.5rem;">
           <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
-            <img src="@/assets/img/grijalvalogo.png" alt="Grijalba"
+            <img src="@/assets/img/grijalvalogo.png" alt="Grijalva"
               style="max-width: 100%; height: auto; max-height: 50px;" />
           </div>
 
@@ -279,6 +279,28 @@
                   <div class="text-h6">{{ selectedTruck.revision_interna_fecha || 'N/A' }}</div>
                 </div>
               </div>
+
+              <v-divider class="my-6 border-opacity-25" color="black"></v-divider>
+              
+              <h3 class="text-h6 mb-4 font-weight-bold">Renovaciones</h3>
+              <div class="specs-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="spec-item">
+                  <div class="text-caption text-grey">SOAT</div>
+                  <div class="text-subtitle-1 font-weight-medium">Última fecha: {{ selectedTruck.proximo_soat || selectedTruck.next_soat || 'N/A' }}</div>
+                  <div class="text-caption text-error font-weight-bold">Vencimiento: {{ addOneYear(selectedTruck.proximo_soat || selectedTruck.next_soat) }}</div>
+                </div>
+                <div class="spec-item">
+                  <div class="text-caption text-grey">Revisión Técnica</div>
+                  <div class="text-subtitle-1 font-weight-medium">Última fecha: {{ selectedTruck.proxima_revision_tecnica || selectedTruck.next_technical_revision || 'N/A' }}</div>
+                  <div class="text-caption text-error font-weight-bold">Vencimiento: {{ addOneYear(selectedTruck.proxima_revision_tecnica || selectedTruck.next_technical_revision) }}</div>
+                </div>
+                <div class="spec-item">
+                  <div class="text-caption text-grey">Revisión Interna</div>
+                  <div class="text-subtitle-1 font-weight-medium">Última fecha: {{ selectedTruck.revision_interna_fecha || 'N/A' }}</div>
+                  <div class="text-caption text-error font-weight-bold">Vencimiento: {{ addOneYear(selectedTruck.revision_interna_fecha) }}</div>
+                </div>
+              </div>
+
             </div>
           </div>
 
@@ -1204,6 +1226,17 @@ const formatDate = (dateString: string | null) => {
     return new Date(dateString).toLocaleDateString('es-PE')
   } catch {
     return dateString
+  }
+}
+
+const addOneYear = (dateString: string | null | undefined) => {
+  if (!dateString || dateString === 'N/A' || dateString === '-') return '-'
+  try {
+    const d = new Date(dateString)
+    d.setFullYear(d.getFullYear() + 1)
+    return d.toLocaleDateString('es-PE')
+  } catch {
+    return '-'
   }
 }
 
