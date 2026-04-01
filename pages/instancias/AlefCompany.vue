@@ -7,7 +7,23 @@
           <div style="width: 35px; height: 35px; border-radius: 50%; overflow: hidden; flex-shrink: 0;">
             <v-img src="@/assets/img/aleflogo oscuro.png" alt="Alef Company Logo" style="width: 100%; height: 100%;" />
           </div>
-          <span class="logo-text">Alef Company</span>
+
+          <template v-if="isSuperAdmin(currentUser)">
+            <v-menu v-model="showDashboardMenu">
+              <template v-slot:activator="{ props }">
+                <div v-bind="props" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                  <v-icon icon="mdi-menu-down" size="small" />
+                </div>
+              </template>
+              <v-list density="compact" class="dashboard-switcher-menu">
+                <v-list-item v-for="d in dashboards" :key="d.path" @click="navigateTo(d.path)" :value="d.path">
+                  <template v-slot:prepend><v-icon :icon="d.icon"></v-icon></template>
+                  <v-list-item-title>{{ d.name }}</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </template>
+          <span v-else class="logo-text">Alef Company</span>
         </div>
       </div>
 
@@ -41,14 +57,15 @@
       </nav>
 
       <div class="sidebar-footer">
-        <button class="footer-item">
+        <button class="footer-item" @click="activeView = 'settings'">
           <v-icon icon="mdi-cog" size="18" />
           <span>Settings</span>
         </button>
-        <button class="footer-item">
+        <a href="https://wa.me/51936196001?text=Hola%20necesito%20soporte" target="_blank" class="footer-item"
+          style="text-decoration: none; color: inherit;">
           <v-icon icon="mdi-help-circle" size="18" />
-          <span>Get Help</span>
-        </button>
+          <span>Contacta con Alef</span>
+        </a>
         <button class="footer-item">
           <v-icon icon="mdi-magnify" size="18" />
           <span>Search</span>
@@ -80,22 +97,18 @@
                 </v-avatar>
               </template>
 
-              <v-list-item-title>Roberto</v-list-item-title>
-              <v-list-item-subtitle>robertoaceresrivas@hotmail.com</v-list-item-subtitle>
+              <v-list-item-title>{{ currentUser.full_name }}</v-list-item-title>
+              <v-list-item-subtitle>{{ currentUser.email }}</v-list-item-subtitle>
             </v-list-item>
 
             <v-divider />
 
-            <v-list-item to="/account" prepend-icon="mdi-account">
-              <v-list-item-title>Account</v-list-item-title>
+            <v-list-item @click="activeView = 'cuenta'" prepend-icon="mdi-account">
+              <v-list-item-title>Cuenta</v-list-item-title>
             </v-list-item>
 
-            <v-list-item to="/billing" prepend-icon="mdi-credit-card">
-              <v-list-item-title>Billing</v-list-item-title>
-            </v-list-item>
-
-            <v-list-item to="/notifications" prepend-icon="mdi-bell">
-              <v-list-item-title>Notifications</v-list-item-title>
+            <v-list-item @click="activeView = 'notificaciones'" prepend-icon="mdi-bell">
+              <v-list-item-title>Notificaciones</v-list-item-title>
             </v-list-item>
 
             <v-divider />
@@ -161,9 +174,58 @@
             </div>
           </div>
 
-          <!-- Table Section Removed -->
+          <!-- Table Section -->
+          <div class="table-section">
+            <div class="table-tabs">
+              <button v-for="tab in tabs" :key="tab.value" :class="['tab', { active: activeTab === tab.value }]"
+                @click="activeTab = tab.value">
+                {{ tab.label }}
+                <span v-if="tab.badge" class="badge">{{ tab.badge }}</span>
+              </button>
+              <div class="spacer" />
+              <button class="tab-action">
+                <v-icon icon="mdi-view-column" size="16" />
+                Customize Columns
+              </button>
+              <button class="tab-action primary" @click="fetchContribuyentes">
+                <v-icon icon="mdi-plus" size="16" />
+                Add Section
+              </button>
+            </div>
+            <v-card flat class="custom-data-table">
+              <v-card-title class="table-search-bar">
+                <span class="table-title">Pacientes</span>
+                <v-spacer></v-spacer>
+                <v-text-field v-model="search" append-inner-icon="mdi-magnify" label="Search" single-line hide-details
+                  density="compact" variant="outlined" class="search-field"></v-text-field>
+              </v-card-title>
+              <v-data-table :headers="headers" :items="contribuyentes" :search="search" :loading="loading"
+                :items-per-page="10" class="elevation-0" loading-text="Cargando datos de Supabase..."
+                no-data-text="No hay datos disponibles">
+                <template v-slot:item.estado="{ item }">
+                  <span :class="['status', item.estado === 'Activo' ? 'done' : 'in-process']">
+                    <span class="status-dot" />
+                    {{ item.estado }}
+                  </span>
+                </template>
+                <template v-slot:item.actions="{ item }">
+                  <button class="icon-btn" @click="editItem(item)">
+                    <v-icon icon="mdi-pencil" size="16" />
+                  </button>
+                  <button class="icon-btn" @click="deleteItem(item)">
+                    <v-icon icon="mdi-delete" size="16" />
+                  </button>
+                </template>
+              </v-data-table>
+            </v-card>
+          </div>
         </div>
+
+
       </div>
+
+      <!-- ==========  VISTA: SETTINGS  ========== -->
+      <SettingsView v-else-if="activeView === 'settings'" company-id="Alef" :current-user-role="currentUser?.role" />
 
       <!-- ==========  VISTA: CALENDARIO  ========== -->
       <div v-else-if="activeView === 'calendario'" class="view-container">
@@ -244,7 +306,158 @@
         </div>
       </div>
 
-      <!-- Pacientes View Removed -->
+      <!-- ==========  VISTA: PACIENTES  ========== -->
+      <!-- ==========  VISTA: ACTIVIDADES (Anteriormente PACIENTES)  ========== -->
+      <div v-else-if="activeView === 'actividades'" class="view-container">
+        <header class="top-header">
+          <h1>Actividades</h1>
+          <button class="btn-primary" @click="openActivityDialog()">
+            <v-icon icon="mdi-plus" size="16" />
+            <span>Nueva Actividad</span>
+          </button>
+        </header>
+
+        <div class="content-area">
+          <!-- Charts Section -->
+          <div class="charts-row">
+            <div class="chart-card">
+              <h3>Rendimiento por Agente</h3>
+              <client-only>
+                <apexchart type="bar" height="200" :options="agentChartOptions" :series="agentSeries" />
+              </client-only>
+            </div>
+            <div class="chart-card">
+              <h3>Estado de Actividades</h3>
+              <client-only>
+                <apexchart type="donut" height="200" :options="statusChartOptions" :series="statusSeries" />
+              </client-only>
+            </div>
+            <div class="chart-card">
+              <h3>Puntos Bono Acumulados</h3>
+              <client-only>
+                <apexchart type="bar" height="200" :options="bonusChartOptions" :series="bonusSeries" />
+              </client-only>
+            </div>
+          </div>
+
+          <!-- Kanban Board -->
+          <div class="kanban-board">
+            <!-- Pendientes -->
+            <div class="kanban-column pending">
+              <div class="column-header">
+                <h3>Pendientes</h3>
+                <span class="count">{{ pendingActivities.length }}</span>
+              </div>
+              <div class="kanban-list">
+                <div v-for="task in pendingActivities" :key="task.id" class="kanban-card"
+                  :class="'priority-' + task.priority">
+                  <div class="card-header">
+                    <span class="task-type">{{ task.type }}</span>
+                    <div class="card-actions">
+                      <button class="icon-btn xs" @click="openActivityDialog(task)"><v-icon icon="mdi-pencil"
+                          size="14" /></button>
+                    </div>
+                  </div>
+                  <h4 class="task-title">{{ task.title }}</h4>
+                  <p class="task-desc" v-if="task.description">{{ task.description }}</p>
+
+                  <div class="task-meta">
+                    <div class="assigned-to">
+                      <v-icon icon="mdi-account" size="14" /> {{ task.assigned_to }}
+                    </div>
+                    <div class="bonus-points">
+                      <v-icon icon="mdi-star" size="14" color="amber" /> {{ task.bonus_points }} pts
+                    </div>
+                  </div>
+
+                  <div class="task-dates">
+                    <span><v-icon icon="mdi-calendar-start" size="12" /> {{ formatDateShort(task.start_date) }}</span>
+                    <span><v-icon icon="mdi-calendar-end" size="12" color="error" /> {{ formatDateShort(task.due_date)
+                    }}</span>
+                  </div>
+
+                  <button class="action-btn start-btn" @click="updateActivityStatus(task, 'en_progreso')">
+                    Iniciar Tarea <v-icon icon="mdi-arrow-right" size="14" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- En Progreso -->
+            <div class="kanban-column progress">
+              <div class="column-header">
+                <h3>En Progreso</h3>
+                <span class="count">{{ inProgressActivities.length }}</span>
+              </div>
+              <div class="kanban-list">
+                <div v-for="task in inProgressActivities" :key="task.id" class="kanban-card"
+                  :class="'priority-' + task.priority">
+                  <div class="card-header">
+                    <span class="task-type">{{ task.type }}</span>
+                    <div class="card-actions">
+                      <button class="icon-btn xs" @click="openActivityDialog(task)"><v-icon icon="mdi-pencil"
+                          size="14" /></button>
+                    </div>
+                  </div>
+                  <h4 class="task-title">{{ task.title }}</h4>
+
+                  <div class="task-meta">
+                    <div class="assigned-to">
+                      <v-icon icon="mdi-account" size="14" /> {{ task.assigned_to }}
+                    </div>
+                    <div class="bonus-points">
+                      <v-icon icon="mdi-star" size="14" color="amber" /> {{ task.bonus_points }} pts
+                    </div>
+                  </div>
+
+                  <div class="task-dates">
+                    <span><v-icon icon="mdi-calendar-end" size="12" color="error" /> Vence: {{
+                      formatDateShort(task.due_date) }}</span>
+                  </div>
+
+                  <div class="task-actions-row">
+                    <button class="action-btn back-btn" @click="updateActivityStatus(task, 'pendiente')">
+                      <v-icon icon="mdi-arrow-left" size="14" />
+                    </button>
+                    <button class="action-btn finish-btn" @click="updateActivityStatus(task, 'finalizada')">
+                      Finalizar <v-icon icon="mdi-check" size="14" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Finalizadas -->
+            <div class="kanban-column done">
+              <div class="column-header">
+                <h3>Finalizadas</h3>
+                <span class="count">{{ completedActivities.length }}</span>
+              </div>
+              <div class="kanban-list">
+                <div v-for="task in completedActivities" :key="task.id" class="kanban-card done-card"
+                  :class="'priority-' + task.priority">
+                  <div class="card-header">
+                    <span class="task-type">{{ task.type }}</span>
+                    <span class="completed-date"><v-icon icon="mdi-check-circle" size="12" color="success" /> {{
+                      formatDateShort(task.completed_at) }}</span>
+                  </div>
+                  <h4 class="task-title">{{ task.title }}</h4>
+
+                  <div class="task-meta">
+                    <div class="assigned-to">
+                      <v-icon icon="mdi-account" size="14" /> {{ task.assigned_to }}
+                    </div>
+                    <div class="bonus-points">
+                      <v-icon icon="mdi-star" size="14" color="amber" /> {{ task.bonus_points }} pts
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
 
       <!-- ==========  VISTA: CONVERSACIONES  ========== -->
       <div v-else-if="activeView === 'conversaciones'" class="view-container">
@@ -578,6 +791,41 @@
           </div>
         </div>
       </div>
+
+      <!-- ==========  VISTA: CUENTA  ========== -->
+      <div v-else-if="activeView === 'cuenta'" class="view-container">
+        <header class="top-header">
+          <h1>Mi Cuenta</h1>
+        </header>
+        <div class="content-area">
+          <v-card class="pa-4" max-width="600">
+            <v-card-title>Editar Perfil</v-card-title>
+            <v-card-text>
+              <v-text-field label="Nombre Completo" v-model="currentUser.full_name" variant="outlined"
+                class="mb-4"></v-text-field>
+              <v-text-field label="Email" v-model="currentUser.email" variant="outlined" readonly disabled
+                class="mb-4"></v-text-field>
+              <v-btn color="primary" block>Guardar Cambios</v-btn>
+            </v-card-text>
+          </v-card>
+        </div>
+      </div>
+
+      <!-- ==========  VISTA: NOTIFICACIONES  ========== -->
+      <div v-else-if="activeView === 'notificaciones'" class="view-container">
+        <header class="top-header">
+          <h1>Notificaciones</h1>
+        </header>
+        <div class="content-area">
+          <v-card class="pa-4" max-width="800">
+            <v-card-title>Configuración de Notificaciones</v-card-title>
+            <v-card-text>
+              <p>No hay configuraciones de notificaciones disponibles para este dashboard.</p>
+            </v-card-text>
+          </v-card>
+        </div>
+      </div>
+
     </div>
 
     <!-- ==========  EVENT CREATION/EDIT DIALOG  ========== -->
@@ -879,6 +1127,84 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <!-- ==========  ACTIVITY CREATION/EDIT DIALOG  ========== -->
+    <v-dialog v-model="showActivityDialog" max-width="600px" persistent>
+      <v-card>
+        <v-card-title class="event-dialog-title">
+          <span>{{ editingActivity ? 'Editar Actividad' : 'Nueva Actividad' }}</span>
+          <v-btn icon="mdi-close" variant="text" @click="closeActivityDialog"></v-btn>
+        </v-card-title>
+
+        <v-card-text>
+          <v-form ref="activityForm">
+            <v-text-field v-model="activityFormData.title" label="Título de la Actividad" variant="outlined"
+              density="compact" :rules="[v => !!v || 'Requerido']"></v-text-field>
+
+            <v-textarea v-model="activityFormData.description" label="Descripción" variant="outlined" density="compact"
+              rows="2"></v-textarea>
+
+            <v-row>
+              <v-col cols="12" sm="6">
+                <v-select v-model="activityFormData.assigned_to" label="Asignar a"
+                  :items="['Julio', 'Juanpa', 'Roberto', 'Piero']" variant="outlined" density="compact"
+                  :rules="[v => !!v || 'Requerido']"></v-select>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-select v-model="activityFormData.type" label="Tipo" :items="['diaria', 'semanal']" variant="outlined"
+                  density="compact"></v-select>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col cols="12" sm="6">
+                <v-text-field v-model="activityFormData.start_date" label="Fecha Inicio" type="date" variant="outlined"
+                  density="compact"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field v-model="activityFormData.due_date" label="Fecha Vencimiento" type="date"
+                  variant="outlined" density="compact" :rules="[v => !!v || 'Requerido']"></v-text-field>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col cols="12" sm="6">
+                <v-select v-model="activityFormData.priority" label="Nivel de Importancia"
+                  :items="['rojo', 'amarillo', 'verde']" variant="outlined" density="compact">
+                  <template v-slot:selection="{ item }">
+                    <v-chip :color="item.raw === 'rojo' ? 'error' : item.raw === 'amarillo' ? 'warning' : 'success'"
+                      size="small" label>{{ item.raw.toUpperCase() }}</v-chip>
+                  </template>
+                  <template v-slot:item="{ props, item }">
+                    <v-list-item v-bind="props">
+                      <template v-slot:prepend>
+                        <v-icon icon="mdi-circle"
+                          :color="item.raw === 'rojo' ? 'error' : item.raw === 'amarillo' ? 'warning' : 'success'"
+                          size="12" class="mr-2" />
+                      </template>
+                    </v-list-item>
+                  </template>
+                </v-select>
+              </v-col>
+              <v-col cols="12" sm="6">
+                <v-text-field v-model.number="activityFormData.bonus_points" label="Puntos Bono" type="number"
+                  variant="outlined" density="compact" prepend-inner-icon="mdi-star"></v-text-field>
+              </v-col>
+            </v-row>
+
+          </v-form>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="grey" variant="text" @click="closeActivityDialog">Cancelar</v-btn>
+          <v-btn color="error" variant="text" v-if="editingActivity"
+            @click="deleteActivity(editingActivity.id)">Eliminar</v-btn>
+          <v-btn color="primary" variant="elevated" @click="saveActivity">Guardar</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <!-- ==========  CREATE USER DIALOG  ========== -->
+    <!-- ==========  SETTINGS DIALOG (REMOVED)  ========== -->
   </div>
 </template>
 
@@ -886,6 +1212,9 @@
 import { ref, computed, nextTick, onMounted, watch } from 'vue'
 import { useTheme } from 'vuetify'
 import type { ApexOptions } from 'apexcharts'
+import { isSuperAdmin, canAccessAlef, dashboards } from '@/utils/permissions'
+
+import SettingsView from '@/components/Settings/SettingsView.vue'
 
 definePageMeta({
   middleware: 'auth-dashboard'
@@ -899,6 +1228,7 @@ interface UserSession {
   email: string
   full_name: string
   role: string
+  company_id?: string
 }
 
 /* ---------------- LÓGICA DE SESIÓN ---------------- */
@@ -911,7 +1241,8 @@ const currentUser = computed(() => {
     full_name: 'Usuario Invitado',
     email: '',
     id: '',
-    role: ''
+    role: '',
+    company_id: ''
   }
 })
 
@@ -932,6 +1263,8 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 /* ---------------- Estado de la Tabla ---------------- */
 const search = ref('')
+const showCreateUserDialog = ref(false)
+//const showSettingsDialog = ref(false)
 const loading = ref(false)
 const contribuyentes = ref<any[]>([])
 
@@ -993,6 +1326,7 @@ const deleteItem = async (item: any) => {
 /* ---------------- Estado General ---------------- */
 const activeView = ref('dashboard')
 const activeTab = ref('outline')
+const showDashboardMenu = ref(false)
 const showUserMenu = ref(false)
 
 /* ---------------- Tema ---------------- */
@@ -1018,7 +1352,21 @@ function applyTheme() {
 
 watch(isDark, applyTheme, { immediate: true })
 
+
+
+// ...
+
+// ... (skipping down to onMounted)
+
 onMounted(() => {
+  // Access Control
+  const userEmail = currentUser.value.email?.toLowerCase()
+
+  if (!canAccessAlef(currentUser.value)) {
+    alert('No tienes permiso para acceder a este dashboard. Contacta a un administrador.')
+    return navigateTo('/')
+  }
+
   applyTheme()
   fetchContribuyentes()
   handleZoom('one_month')
@@ -1037,6 +1385,7 @@ function logout() {
 const menuItems = [
   { icon: 'mdi-view-dashboard', label: 'Dashboard', id: 'dashboard' },
   { icon: 'mdi-calendar-blank', label: 'Calendario', id: 'calendario' },
+  { icon: 'mdi-clipboard-list', label: 'Actividades', id: 'actividades' },
   { icon: 'mdi-message-reply', label: 'Conversaciones', id: 'conversaciones' },
   { icon: 'mdi-chart-box', label: 'Leads', id: 'leads' }
 ]
@@ -1178,6 +1527,8 @@ const zoomButtons = [
 ]
 
 /* ---------------- Calendar Types & Interfaces ---------------- */
+const client = useSupabaseClient()
+
 interface CalendarEvent {
   id: string
   date: string
@@ -1406,7 +1757,7 @@ function closeEventDialog() {
   editingEvent.value = null
 }
 
-function saveEvent() {
+async function saveEvent() {
   if (!eventForm.value) return
 
   // Validate form (Vuetify will handle this)
@@ -1423,26 +1774,42 @@ function saveEvent() {
     return
   }
 
-  if (editingEvent.value) {
-    // Update existing event
-    const index = events.value.findIndex(e => e.id === editingEvent.value!.id)
-    if (index !== -1) {
-      events.value[index] = {
-        ...editingEvent.value,
-        ...eventFormData.value
-      }
+  try {
+    const payload = {
+      date: eventFormData.value.date,
+      time: eventFormData.value.time,
+      subject: eventFormData.value.subject,
+      description: eventFormData.value.description,
+      procedure_id: eventFormData.value.procedureId,
+      client_name: eventFormData.value.clientName,
+      client_surname: eventFormData.value.clientSurname,
+      client_dni: eventFormData.value.clientDNI,
+      event_reason: eventFormData.value.eventReason
     }
-  } else {
-    // Create new event
-    const newEvent: CalendarEvent = {
-      id: Date.now().toString(),
-      ...eventFormData.value
-    }
-    events.value.push(newEvent)
-  }
 
-  saveEventsToLocalStorage()
-  closeEventDialog()
+    if (editingEvent.value) {
+      // Update
+      const { error } = await (client
+        .from('alef_calendar_events') as any)
+        .update(payload)
+        .eq('id', editingEvent.value.id)
+
+      if (error) throw error
+    } else {
+      // Create
+      const { error } = await (client
+        .from('alef_calendar_events') as any)
+        .insert(payload)
+
+      if (error) throw error
+    }
+
+    await fetchEvents()
+    closeEventDialog()
+  } catch (error) {
+    console.error('Error saving event:', error)
+    alert('Error al guardar el evento')
+  }
 }
 
 function openEventDetail(event: CalendarEvent) {
@@ -1473,9 +1840,19 @@ function confirmDeleteEvent() {
   }
 }
 
-function deleteEvent(eventId: string) {
-  events.value = events.value.filter(e => e.id !== eventId)
-  saveEventsToLocalStorage()
+async function deleteEvent(eventId: string) {
+  try {
+    const { error } = await client
+      .from('alef_calendar_events')
+      .delete()
+      .eq('id', eventId)
+
+    if (error) throw error
+    await fetchEvents()
+  } catch (error) {
+    console.error('Error deleting event:', error)
+    alert('Error al eliminar el evento')
+  }
 }
 
 function closeDayEventsDialog() {
@@ -1489,30 +1866,43 @@ function openEventDetailFromDay(event: CalendarEvent) {
   openEventDetail(event)
 }
 
-/* ---------------- Helper Functions ---------------- */
 function getProcedureColor(procedureId: string): string {
   const procedure = procedures.value.find(p => p.id === procedureId)
-  return procedure ? procedure.color : '#3b82f6' // Default blue if procedure not found
+  return procedure ? procedure.color : '#3b82f6'
 }
 
-/* ---------------- LocalStorage Functions ---------------- */
-function saveEventsToLocalStorage() {
-  if (import.meta.client) {
-    localStorage.setItem('alefcompany_calendar_events', JSON.stringify(events.value))
-  }
+function downloadMedicalAttachment(item: MedicalHistoryEntry) {
+  if (!item.attachmentData) return
+  const link = document.createElement('a')
+  link.href = item.attachmentData
+  link.download = item.attachmentName || 'documento.pdf'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
 }
 
-function loadEventsFromLocalStorage() {
-  if (import.meta.client) {
-    const stored = localStorage.getItem('alefcompany_calendar_events')
-    if (stored) {
-      try {
-        events.value = JSON.parse(stored)
-      } catch (e) {
-        console.error('Error loading events from localStorage:', e)
-        events.value = []
-      }
-    }
+async function fetchEvents() {
+  try {
+    const { data, error } = await client
+      .from('alef_calendar_events')
+      .select('*')
+
+    if (error) throw error
+
+    events.value = (data || []).map((e: any) => ({
+      id: e.id,
+      date: e.date,
+      time: e.time,
+      subject: e.subject,
+      description: e.description,
+      procedureId: e.procedure_id,
+      clientName: e.client_name,
+      clientSurname: e.client_surname,
+      clientDNI: e.client_dni,
+      eventReason: e.event_reason
+    }))
+  } catch (error) {
+    console.error('Error loading events:', error)
   }
 }
 
@@ -1584,7 +1974,7 @@ function closeProcedureDialog() {
   editingProcedure.value = null
 }
 
-function saveProcedure() {
+async function saveProcedure() {
   if (!procedureFormData.value.name) {
     alert('Por favor ingrese un nombre para el procedimiento')
     return
@@ -1595,63 +1985,84 @@ function saveProcedure() {
     return
   }
 
-  if (editingProcedure.value) {
-    // Update existing procedure
-    const index = procedures.value.findIndex(p => p.id === editingProcedure.value!.id)
-    if (index !== -1) {
-      procedures.value[index] = {
-        ...editingProcedure.value,
-        ...procedureFormData.value
-      }
+  try {
+    const payload = {
+      name: procedureFormData.value.name,
+      color: procedureFormData.value.color,
+      price: procedureFormData.value.price,
+      discount: procedureFormData.value.discount
     }
-  } else {
-    // Create new procedure
-    const newProcedure: Procedure = {
-      id: Date.now().toString(),
-      ...procedureFormData.value
-    }
-    procedures.value.push(newProcedure)
-  }
 
-  saveProceduresToLocalStorage()
-  closeProcedureDialog()
+    if (editingProcedure.value) {
+      // Update
+      const { error } = await (client
+        .from('alef_procedures') as any)
+        .update(payload)
+        .eq('id', editingProcedure.value.id)
+
+      if (error) throw error
+    } else {
+      // Create
+      const { error } = await (client
+        .from('alef_procedures') as any)
+        .insert(payload)
+
+      if (error) throw error
+    }
+
+    await fetchProcedures()
+    closeProcedureDialog()
+  } catch (error) {
+    console.error('Error saving procedure:', error)
+    alert('Error al guardar el procedimiento')
+  }
 }
 
-function deleteProcedure(id: string) {
+async function deleteProcedure(id: string) {
   if (confirm('¿Estás seguro de que deseas eliminar este procedimiento?')) {
-    procedures.value = procedures.value.filter(p => p.id !== id)
-    saveProceduresToLocalStorage()
-  }
-}
+    try {
+      const { error } = await client
+        .from('alef_procedures')
+        .delete()
+        .eq('id', id)
 
-function saveProceduresToLocalStorage() {
-  if (import.meta.client) {
-    localStorage.setItem('alefcompany_procedures', JSON.stringify(procedures.value))
-  }
-}
-
-function loadProceduresFromLocalStorage() {
-  if (import.meta.client) {
-    const stored = localStorage.getItem('alefcompany_procedures')
-    if (stored) {
-      try {
-        procedures.value = JSON.parse(stored)
-      } catch (e) {
-        console.error('Error loading procedures from localStorage:', e)
-        procedures.value = []
-      }
+      if (error) throw error
+      await fetchProcedures()
+    } catch (error) {
+      console.error('Error deleting procedure:', error)
+      alert('Error al eliminar el procedimiento')
     }
+  }
+}
+
+async function fetchProcedures() {
+  try {
+    const { data, error } = await client
+      .from('alef_procedures')
+      .select('*')
+      .order('id', { ascending: false })
+
+    if (error) throw error
+    procedures.value = data || []
+  } catch (error) {
+    console.error('Error loading procedures:', error)
   }
 }
 
 /* ---------------- Lifecycle ---------------- */
+/* ---------------- Lifecycle ---------------- */
 onMounted(() => {
-  applyTheme()
-  fetchContribuyentes()
+  // Access Control
+  // const userEmail = currentUser.value.email?.toLowerCase()
+
+  if (!canAccessAlef(currentUser.value)) {
+    alert('No tienes permiso para acceder a este dashboard.')
+    return navigateTo('/')
+  }
   handleZoom('one_month')
-  loadEventsFromLocalStorage()
-  loadProceduresFromLocalStorage()
-  loadMedicalHistoryFromLocalStorage()
+  fetchEvents()
+  fetchProcedures()
+  fetchMedicalHistory()
 })
 
 /* ---------------- Medical History Types ---------------- */
@@ -1765,75 +2176,342 @@ async function saveMedicalHistory() {
     attachmentName = editingMedicalHistory.value.attachmentName || ''
   }
 
-  if (editingMedicalHistory.value) {
-    // Update existing entry
-    const index = medicalHistoryEntries.value.findIndex(e => e.id === editingMedicalHistory.value!.id)
-    if (index !== -1) {
-      medicalHistoryEntries.value[index] = {
-        ...editingMedicalHistory.value,
-        name: medicalHistoryFormData.value.name,
-        surname: medicalHistoryFormData.value.surname,
-        dni: medicalHistoryFormData.value.dni,
-        phone: medicalHistoryFormData.value.phone,
-        email: medicalHistoryFormData.value.email,
-        attachmentName,
-        attachmentData
-      }
-    }
-  } else {
-    // Create new entry
-    const newEntry: MedicalHistoryEntry = {
-      id: Date.now().toString(),
+  try {
+    const payload = {
       name: medicalHistoryFormData.value.name,
       surname: medicalHistoryFormData.value.surname,
       dni: medicalHistoryFormData.value.dni,
       phone: medicalHistoryFormData.value.phone,
       email: medicalHistoryFormData.value.email,
-      dateAdded: new Date().toLocaleDateString(),
-      attachmentName,
-      attachmentData
+      date_added: editingMedicalHistory.value ? undefined : new Date().toLocaleDateString(),
+      attachment_name: attachmentName,
+      attachment_data: attachmentData
     }
-    medicalHistoryEntries.value.push(newEntry)
-  }
 
-  saveMedicalHistoryToLocalStorage()
-  closeMedicalHistoryDialog()
-}
+    if (editingMedicalHistory.value) {
+      // Update
+      const { error } = await (client
+        .from('alef_client_history') as any)
+        .update(payload)
+        .eq('id', editingMedicalHistory.value.id)
 
-function deleteMedicalHistory(id: string) {
-  if (confirm('¿Eliminar este historial médico?')) {
-    medicalHistoryEntries.value = medicalHistoryEntries.value.filter(entry => entry.id !== id)
-    saveMedicalHistoryToLocalStorage()
-  }
-}
+      if (error) throw error
+    } else {
+      // Create
+      const { error } = await (client
+        .from('alef_client_history') as any)
+        .insert({
+          ...payload,
+          date_added: new Date().toLocaleDateString()
+        })
 
-function downloadMedicalAttachment(item: MedicalHistoryEntry) {
-  if (!item.attachmentData) return
+      if (error) throw error
+    }
 
-  const link = document.createElement('a')
-  link.href = item.attachmentData
-  link.download = item.attachmentName || 'documento.pdf'
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-}
-
-function saveMedicalHistoryToLocalStorage() {
-  if (import.meta.client) {
-    localStorage.setItem('alefcompany_medical_history', JSON.stringify(medicalHistoryEntries.value))
+    await fetchMedicalHistory()
+    closeMedicalHistoryDialog()
+  } catch (error) {
+    console.error('Error saving history:', error)
+    alert('Error al guardar el historial')
   }
 }
 
-function loadMedicalHistoryFromLocalStorage() {
-  if (import.meta.client) {
-    const stored = localStorage.getItem('alefcompany_medical_history')
-    if (stored) {
-      try {
-        medicalHistoryEntries.value = JSON.parse(stored)
-      } catch (e) {
-        console.error('Error loading medical history:', e)
+async function deleteMedicalHistory(id: string) {
+  if (confirm('¿Eliminar este historial?')) {
+    try {
+      const { error } = await client
+        .from('alef_client_history')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+      await fetchMedicalHistory()
+    } catch (error) {
+      console.error('Error deleting history:', error)
+      alert('Error al eliminar historial')
+    }
+  }
+}
+
+async function fetchMedicalHistory() {
+  try {
+    const { data, error } = await client
+      .from('alef_client_history')
+      .select('*')
+      .order('id', { ascending: false })
+
+    if (error) throw error
+
+    medicalHistoryEntries.value = (data || []).map((e: any) => ({
+      id: e.id,
+      name: e.name,
+      surname: e.surname,
+      dni: e.dni,
+      phone: e.phone,
+      email: e.email,
+      dateAdded: e.date_added,
+      attachmentName: e.attachment_name,
+      attachmentData: e.attachment_data
+    }))
+  } catch (error) {
+    console.error('Error loading history:', error)
+  }
+}
+
+/* ---------------- Activities System ---------------- */
+interface Activity {
+  id: string
+  title: string
+  description: string
+  assigned_to: string
+  start_date: string
+  due_date: string
+  status: 'pendiente' | 'en_progreso' | 'finalizada'
+  priority: 'rojo' | 'amarillo' | 'verde'
+  bonus_points: number
+  type: 'diaria' | 'semanal'
+  created_at: string
+  completed_at?: string
+}
+
+const activities = ref<Activity[]>([])
+const showActivityDialog = ref(false)
+const editingActivity = ref<Activity | null>(null)
+const activityForm = ref<any>(null)
+const activityFormData = ref({
+  title: '',
+  description: '',
+  assigned_to: '',
+  start_date: new Date().toISOString().split('T')[0],
+  due_date: '',
+  status: 'pendiente',
+  priority: 'verde',
+  bonus_points: 0,
+  type: 'diaria'
+})
+
+// Computed Lists
+const pendingActivities = computed(() => activities.value.filter(a => a.status === 'pendiente'))
+const inProgressActivities = computed(() => activities.value.filter(a => a.status === 'en_progreso'))
+const completedActivities = computed(() => activities.value.filter(a => a.status === 'finalizada'))
+
+// Chart Data Computed
+const agentChartOptions = computed<ApexOptions>(() => ({
+  chart: { type: 'bar', toolbar: { show: false }, background: 'transparent', foreColor: '#aaa' },
+  plotOptions: { bar: { borderRadius: 4, horizontal: false } },
+  xaxis: { categories: ['Julio', 'Juanpa', 'Roberto', 'Piero'] },
+  colors: ['#3b82f6'],
+  grid: { borderColor: '#333' }
+}))
+
+const agentSeries = computed(() => {
+  const counts = { Julio: 0, Juanpa: 0, Roberto: 0, Piero: 0 }
+  completedActivities.value.forEach(a => {
+    if (counts[a.assigned_to as keyof typeof counts] !== undefined) {
+      counts[a.assigned_to as keyof typeof counts]++
+    }
+  })
+  return [{ name: 'Tareas Completadas', data: [counts.Julio, counts.Juanpa, counts.Roberto, counts.Piero] }]
+})
+
+const statusChartOptions = computed<ApexOptions>(() => ({
+  chart: { type: 'donut', background: 'transparent', foreColor: '#aaa' },
+  labels: ['Pendiente', 'En Progreso', 'Finalizada'],
+  colors: ['#4b5563', '#3b82f6', '#10b981'],
+  plotOptions: {
+    pie: {
+      donut: {
+        size: '75%',
+        labels: {
+          show: true,
+          total: {
+            show: true,
+            label: 'Total',
+            color: '#fff',
+            fontSize: '14px',
+            fontWeight: 600
+          },
+          value: {
+            color: '#fff',
+            fontSize: '20px',
+            fontWeight: 700
+          }
+        }
       }
     }
+  },
+  dataLabels: { enabled: false },
+  legend: { position: 'bottom', fontSize: '12px' },
+  stroke: { show: false }, // No borders for smoother look
+  tooltip: { theme: 'dark' }
+}))
+
+const statusSeries = computed(() => [
+  pendingActivities.value.length,
+  inProgressActivities.value.length,
+  completedActivities.value.length
+])
+
+const bonusChartOptions = computed<ApexOptions>(() => ({
+  chart: { type: 'bar', toolbar: { show: false }, background: 'transparent', foreColor: '#aaa' },
+  plotOptions: { bar: { borderRadius: 4, horizontal: true } },
+  xaxis: { categories: ['Julio', 'Juanpa', 'Roberto', 'Piero'] },
+  colors: ['#f59e0b'],
+  grid: { borderColor: '#333' }
+}))
+
+const bonusSeries = computed(() => {
+  const points = { Julio: 0, Juanpa: 0, Roberto: 0, Piero: 0 }
+  activities.value.forEach(a => {
+    // Count points for all tasks or just completed? Usually earned when completed.
+    if (a.status === 'finalizada' && points[a.assigned_to as keyof typeof points] !== undefined) {
+      points[a.assigned_to as keyof typeof points] += (a.bonus_points || 0)
+    }
+  })
+  return [{ name: 'Puntos Bono', data: [points.Julio, points.Juanpa, points.Roberto, points.Piero] }]
+})
+
+// Functions
+async function fetchActivities() {
+  try {
+    const { data, error } = await client
+      .from('alef_activities')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching activities:', error)
+      return
+    }
+
+    activities.value = data || []
+  } catch (e) {
+    console.error('Exception fetching activities:', e)
   }
 }
+
+function openActivityDialog(activity?: Activity) {
+  if (activity) {
+    editingActivity.value = activity
+    activityFormData.value = {
+      title: activity.title,
+      description: activity.description || '',
+      assigned_to: activity.assigned_to,
+      start_date: activity.start_date ? activity.start_date.split('T')[0] : '',
+      due_date: activity.due_date ? activity.due_date.split('T')[0] : '',
+      status: activity.status || 'pendiente',
+      priority: activity.priority as any || 'verde',
+      bonus_points: activity.bonus_points || 0,
+      type: activity.type as any || 'diaria'
+    }
+  } else {
+    editingActivity.value = null
+    activityFormData.value = {
+      title: '',
+      description: '',
+      assigned_to: '',
+      start_date: new Date().toISOString().split('T')[0],
+      due_date: '',
+      status: 'pendiente',
+      priority: 'verde',
+      bonus_points: 0,
+      type: 'diaria'
+    }
+  }
+  showActivityDialog.value = true
+}
+
+function closeActivityDialog() {
+  showActivityDialog.value = false
+  editingActivity.value = null
+}
+
+async function saveActivity() {
+  if (!activityFormData.value.title || !activityFormData.value.assigned_to || !activityFormData.value.due_date) {
+    alert('Por favor complete los campos requeridos (Título, Asignado a, Fecha Vencimiento)')
+    return
+  }
+
+  const payload = {
+    title: activityFormData.value.title,
+    description: activityFormData.value.description,
+    assigned_to: activityFormData.value.assigned_to,
+    start_date: activityFormData.value.start_date,
+    due_date: activityFormData.value.due_date,
+    status: editingActivity.value ? editingActivity.value.status : 'pendiente', // Keep status on edit unless changed elsewhere
+    priority: activityFormData.value.priority,
+    bonus_points: activityFormData.value.bonus_points,
+    type: activityFormData.value.type
+  }
+
+  try {
+    if (editingActivity.value) {
+      const { error } = await (client
+        .from('alef_activities') as any)
+        .update(payload)
+        .eq('id', editingActivity.value.id)
+      if (error) throw error
+    } else {
+      const { error } = await (client
+        .from('alef_activities') as any)
+        .insert(payload)
+      if (error) throw error
+    }
+    await fetchActivities()
+    closeActivityDialog()
+  } catch (e) {
+    console.error('Error saving activity:', e)
+    alert('Error al guardar la actividad')
+  }
+}
+
+async function updateActivityStatus(activity: Activity, newStatus: string) {
+  try {
+    const updates: any = { status: newStatus }
+    if (newStatus === 'finalizada') {
+      updates.completed_at = new Date().toISOString()
+    }
+
+    const { error } = await (client
+      .from('alef_activities') as any)
+      .update(updates)
+      .eq('id', activity.id)
+
+    if (error) throw error
+
+    // Optimistic update
+    const idx = activities.value.findIndex(a => a.id === activity.id)
+    if (idx !== -1) {
+      activities.value[idx].status = newStatus as any
+      if (newStatus === 'finalizada') {
+        activities.value[idx].completed_at = updates.completed_at
+      }
+    }
+    await fetchActivities() // Sync just in case
+  } catch (e) {
+    console.error('Error updating status:', e)
+  }
+}
+
+async function deleteActivity(id: string) {
+  if (!confirm('¿Eliminar esta actividad?')) return
+  try {
+    const { error } = await (client.from('alef_activities') as any).delete().eq('id', id)
+    if (error) throw error
+    await fetchActivities()
+    closeActivityDialog()
+  } catch (e) {
+    alert('Error al eliminar')
+  }
+}
+
+function formatDateShort(dateStr?: string) {
+  if (!dateStr) return '-'
+  return new Date(dateStr).toLocaleDateString('es-PE', { day: '2-digit', month: 'short' })
+}
+
+// Add fetchActivities to onMounted
+onMounted(() => {
+  fetchActivities()
+})
 </script>

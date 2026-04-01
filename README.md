@@ -1,81 +1,80 @@
-# Nuxt 3 + Vuetify 3 Starter
+# Dashboard Alef Company
 
-![Starter Image](/public/starter.png)
-Nuxt 3 is now stable. Vuetify 3 is now stable. I will be updating this template as we go along. Feel free to open an issue if you have any questions or suggestions.
-This template here will get you up & running with adding the two together :)
+Bienvenido al repositorio oficial del **Dashboard Avanzado de Alef Company**. Este sistema está diseñado para la gestión integral de las operaciones de la empresa y sus marcas asociadas, incluyendo **Brada Perfumes** y **Healup**.
 
-## Demo Here
+![Alef Company Logo](./assets/img/Aleflogo.png)
 
-[Online Demo](https://vuetify3nuxt3starter.behonbaker.com)
+## 🚀 Características Principales
 
-## How to use
+Este dashboard es una solución multi-marca que centraliza:
 
-As time passes, I will be updating this template. It will grow with some more pages. It all started with the login & register pages. I may keep a running list of pages added here.
+### 🏢 Gestión Corporativa (Alef Company)
+- **Administración General**: Control de usuarios y accesos.
+- **Leads y Clientes**: Seguimiento de prospectos y base de datos de clientes.
 
-### Pages
+### 🧪 Brada Perfumes
+- **Gestión de Stock**: Control detallado de inventario para:
+  - Perfumes (Botellas completas)
+  - Decants (Muestras de 5ml, 10ml)
+  - Sets de Perfumes
+- **Procedimientos de Entrega**: Tipos de entrega (Domicilio, Tienda) y seguimiento.
+- **Calendario**: Agenda de entregas y visitas.
+- **Facturación**:
+  - Ingresos mensuales y ticket promedio.
+  - Tasa de conversión real (Leads -> Clientes).
+  - Gráficos de tendencias de ventas.
 
-<details>
-<summary>Click to see the pages added & planned</summary>
+### ⚕️ Healup
+- **Gestión de Pacientes**: Historia clínica y seguimiento.
+- **Agenda Médica**: Calendario de citas interactivo.
+- **Procedimientos Médicos**: Catálogo de servicios y precios.
 
-- [x] Login
-- [x] Register
-- [x] Reset Password
+## 🛠️ Tecnologías Utilizadas
 
-</details>
+Este proyecto utiliza un stack moderno y reactivo:
 
-### Run the app
+- **Framework**: [Nuxt 3](https://nuxt.com)
+- **UI Toolkit**: [Vuetify 3](https://vuetifyjs.com)
+- **Base de Datos & Auth**: [Supabase](https://supabase.com)
+- **Visualización de Datos**: [ApexCharts](https://apexcharts.com)
+- **Iconos**: Material Design Icons (MDI)
 
-1. Install the deps
+## 💻 Instalación y Configuración
+
+Sigue estos pasos para levantar el proyecto en tu entorno local:
+
+### 1. Prerrequisitos
+- Node.js (v16.10.0 o superior)
+- npm o yarn
+
+### 2. Instalación de Dependencias
 
 ```bash
 npm install
 ```
 
-2. Run the app
+### 3. Configuración de Variables de Entorno
+Asegúrate de tener configuradas las credenciales de Supabase en tu archivo `.env` (o directamente en `nuxt.config.ts` si aplica):
+
+```
+SUPABASE_URL=tu_url_de_supabase
+SUPABASE_KEY=tu_anon_key
+```
+
+### 4. Ejecutar en Desarrollo
 
 ```bash
 npm run dev
 ```
 
-### Stuff used
+El servidor iniciará en `http://localhost:3000`.
 
-- NuxtJS
-- Nuxt Icon
-- Sass
-- Vuetify
-- [@vite-pwa/nuxt](https://github.com/vite-pwa/nuxt)
-- Vite Plugin Vuetify
+## 📂 Estructura del Proyecto
 
-### Custom Sass File
+- `/pages`: Módulos principales (`BradaPerfumes.vue`, `Healup.vue`, `AlefCompany.vue`).
+- `/assets`: Estilos globales y recursos multimedia.
+- `/components`: Componentes reutilizables.
+- `/layouts`: Estructuras de página base.
 
-The `.scss` file that can be found in the `assets` folder have some gradients & other styles. They can be deleted or updated.
-
-### ~~Helpers Folder~~ Utils Folder
-
-The ~~helper~~ utils folder contains the custom stuff for the Vuetify plugin
-
-#### Custom Icons - `customIcons.ts`
-
-So I switched from the nuxt-icon module to the @iconify/vue component [here](https://docs.iconify.design/icon-components/vue/). It plays better with Vuetify with custom icons
-
-Here is a link to the docs for this [Creating a custom iconset](https://next.vuetifyjs.com/en/features/icon-fonts/#creating-a-custom-icon-set)
-
-#### Global Defaults - `defaults.ts`
-
-This file here just set global props on different vuetify components. You can learn more here [Global Configuration](https://next.vuetifyjs.com/en/features/global-configuration/)
-
-#### Themes - `themes.ts`
-
-This file will hold all the different themes that you want to use in your app. Feel free to add more crazy schemes lol. Learn more here: [Vuetify Themes](https://next.vuetifyjs.com/en/features/theme/)
-
-#### Form Rules - Composable
-
-I added one composable for form rules. Add more here. You can even try integrating other validation packages like `yup` or `zod`
-
-#### Yup & Vee-Validate
-
-I will definitely be switching to vee-validate for dealing with forms.
-
-#### Icons
-
-The public folder contains a `favicon` & `icon`. Change these out for your app and be sure to tweak the pwa config inside the `nuxt.config` file to fit your app
+---
+**Alef Company** - *Innovación y Gestión.*

@@ -3,9 +3,28 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <div class="logo">
-          <img src="@/assets/img/soletanche_logo.jpg" alt="Soletanche Bachy"
-            style="max-width: 100%; height: auto; max-height: 50px;" />
+        <div class="logo" style="gap: 0.5rem;">
+          <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+            <img src="@/assets/img/soletanche_logo.jpg" alt="Soletanche Bachy"
+              style="max-width: 100%; height: auto; max-height: 50px;" />
+          </div>
+
+          <template v-if="isSuperAdmin(currentUser)">
+            <v-menu v-model="showDashboardMenu">
+              <template v-slot:activator="{ props }">
+                <div v-bind="props"
+                  style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; justify-content: center; margin-top: 5px;">
+                  <v-icon icon="mdi-menu-down" size="small" />
+                </div>
+              </template>
+              <v-list density="compact" class="dashboard-switcher-menu">
+                <v-list-item v-for="d in dashboards" :key="d.path" @click="navigateTo(d.path)" :value="d.path">
+                  <template v-slot:prepend><v-icon :icon="d.icon"></v-icon></template>
+                  <v-list-item-title>{{ d.name }}</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </template>
         </div>
       </div>
 
@@ -74,8 +93,8 @@
         <div class="user-profile">
           <img src="https://i.pravatar.cc/150?u=a042581f4e29026024d" alt="User" class="user-avatar" />
           <div class="user-info">
-            <span class="user-name">Roberto Cáceres</span>
-            <span class="user-role">Administrador</span>
+            <span class="user-name">{{ currentUser?.full_name || currentUser?.email || 'Usuario' }}</span>
+            <span class="user-role" style="text-transform: capitalize;">{{ currentUser?.role || 'User' }}</span>
           </div>
         </div>
         <button class="nav-item" style="margin-top: 5px;" @click="handleLogout">
@@ -853,8 +872,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import type { ApexOptions } from 'apexcharts'
+import {
+  isSuperAdmin,
+  canAccessSoletanche,
+  dashboards,
+  type UserSession
+} from '@/utils/permissions'
 
 // useTheme if needed for dark mode logic
 import { useTheme } from 'vuetify'
@@ -862,14 +887,31 @@ import { useTheme } from 'vuetify'
 const currentView = ref('dashboard')
 const client = useSupabaseClient()
 const router = useRouter()
+const showDashboardMenu = ref(false)
+
+const userSession = useCookie<UserSession | null>('dashboard_session')
+const currentUser = computed(() => userSession.value || { email: '', role: '', company_id: '' })
+
+function navigateTo(path: string) {
+  router.push(path)
+}
 
 const handleLogout = async () => {
   const { error } = await client.auth.signOut()
   if (error) {
     console.error('Error logging out:', error)
   }
+  userSession.value = null
   router.push('/')
 }
+
+onMounted(() => {
+  if (!canAccessSoletanche(currentUser.value)) {
+    alert('No tienes permiso para acceder a este dashboard.')
+    router.push('/')
+    return
+  }
+})
 
 const viewTitle = computed(() => {
   switch (currentView.value) {

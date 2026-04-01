@@ -1,12 +1,12 @@
 import vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 
 // PWA Config
-const title = "Vuetify 3 + Nuxt 3 Starter";
-const shortTitle = "Vuetify 3 + Nuxt 3 Starter";
-const description = "Template to get you up and running with Nuxt 3 & Vuetify 3";
-const image = "https://vuetify3nuxt3starter.behonbaker.com/starter.png";
-const url = "https://vuetify3nuxt3starter.behonbaker.com/";
-const author = "Behon Baker";
+const title = "FlowX";
+const shortTitle = "FlowX";
+const description = "Dashboard FlowX";
+const image = "assets/img/FLOWLOGO.png";
+const url = "https://flowxperu.com/";
+const author = "FlowX";
 const themeColor = "#4f46e5";
 
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
@@ -15,6 +15,25 @@ export default defineNuxtConfig({
   css: ["@/assets/styles/dashboard.css"],
   plugins: ['~/plugins/apexcharts.client.ts'],
   devtools: { enabled: true },
+
+  runtimeConfig: {
+    // --- Lado del Servidor (Privado) ---
+    n8nApiKey: process.env.N8N_API_KEY,
+    n8nBaseUrl: process.env.N8N_BASE_URL,
+
+    // Aquí registramos tu "Diccionario de Empresas"
+    // Nuxt leerá las variables que pusiste en el archivo .env
+    n8nWorkflows: {
+      alegrated: process.env.N8N_ID_ALEGRATED, // Se conecta con la variable del .env
+      brada: process.env.N8N_ID_BRADA,   // Se conecta con la variable del .env
+      healup: process.env.N8N_ID_HEALUP  // Se conecta con la variable del .env
+    },
+
+    // --- Lado del Cliente (Público) ---
+    public: {
+      // Supabase lo hace automático, no toques nada aquí
+    }
+  },
 
   // enable takeover mode
   typescript: { shim: false },
@@ -46,15 +65,15 @@ export default defineNuxtConfig({
   supabase: {
     redirect: false,
     // Forzamos las credenciales aquí si el .env falla
-    url: process.env.SUPABASE_URL || "https://qzmgizrvdukyxvpgclvd.supabase.co",
-    key: process.env.SUPABASE_KEY || "sb_publishable_BK4cQlXdmAWtlSW8YKnAqw_jB5Nb_dW"
+    url: process.env.SUPABASE_URL,
+    key: process.env.SUPABASE_KEY
   },
 
 
   app: {
     head: {
-      title: "Vuetify 3 + Nuxt 3 Starter",
-      titleTemplate: "%s | Vuetify 3 + Nuxt 3 Starter",
+      title: "FlowX",
+      titleTemplate: "%s | Dashboard FlowX",
       link: [
         { rel: "stylesheet", href: "https://rsms.me/inter/inter.css" },
         { rel: "preconnect", href: "https://rsms.me/" },

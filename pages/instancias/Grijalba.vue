@@ -3,9 +3,28 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <div class="logo">
-          <img src="@/assets/img/grijalvalogo.png" alt="Grijalba"
-            style="max-width: 100%; height: auto; max-height: 50px;" />
+        <div class="logo" style="gap: 0.5rem;">
+          <div style="width: 100%; display: flex; justify-content: center; align-items: center;">
+            <img src="@/assets/img/grijalvalogo.png" alt="Grijalba"
+              style="max-width: 100%; height: auto; max-height: 50px;" />
+          </div>
+
+          <template v-if="isSuperAdmin(currentUser)">
+            <v-menu v-model="showDashboardMenu">
+              <template v-slot:activator="{ props }">
+                <div v-bind="props"
+                  style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; justify-content: center; margin-top: 5px;">
+                  <v-icon icon="mdi-menu-down" size="small" />
+                </div>
+              </template>
+              <v-list density="compact" class="dashboard-switcher-menu">
+                <v-list-item v-for="d in dashboards" :key="d.path" @click="navigateTo(d.path)" :value="d.path">
+                  <template v-slot:prepend><v-icon :icon="d.icon"></v-icon></template>
+                  <v-list-item-title>{{ d.name }}</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </template>
         </div>
       </div>
 
@@ -23,16 +42,16 @@
             <span>Control de Camionetas</span>
           </button>
           <button :class="['nav-item', { active: currentView === 'marketplace' }]" @click="currentView = 'marketplace'">
-            <v-icon icon="mdi-store-outline" size="20"></v-icon>
-            <span>Mercado</span>
+            <v-icon icon="mdi-hard-hat" size="20"></v-icon>
+            <span>EPPS</span>
           </button>
           <button :class="['nav-item', { active: currentView === 'orders' }]" @click="currentView = 'orders'">
             <v-icon icon="mdi-shopping-outline" size="20"></v-icon>
             <span>Pedidos</span>
           </button>
           <button :class="['nav-item', { active: currentView === 'tracking' }]" @click="currentView = 'tracking'">
-            <v-icon icon="mdi-map-marker-path" size="20"></v-icon>
-            <span>Seguimiento</span>
+            <v-icon icon="mdi-account-clock" size="20"></v-icon>
+            <span>Tareas del personal</span>
           </button>
           <button :class="['nav-item', { active: currentView === 'discounts' }]" @click="currentView = 'discounts'">
             <v-icon icon="mdi-tag-outline" size="20"></v-icon>
@@ -74,8 +93,8 @@
         <div class="user-profile">
           <img src="https://i.pravatar.cc/150?u=a042581f4e29026024d" alt="User" class="user-avatar" />
           <div class="user-info">
-            <span class="user-name">Roberto Cáceres</span>
-            <span class="user-role">Administrador</span>
+            <span class="user-name">{{ currentUser?.full_name || currentUser?.email || 'Usuario' }}</span>
+            <span class="user-role" style="text-transform: capitalize;">{{ currentUser?.role || 'User' }}</span>
           </div>
         </div>
         <button class="nav-item" style="margin-top: 5px;" @click="handleLogout">
@@ -168,6 +187,8 @@
                 <th>Placa</th>
                 <th>Modelo</th>
                 <th>Km acumulado</th>
+                <th>Ultima fecha de intervención</th>
+                <th>Próximo SOAT</th>
                 <th>Fecha de intervención</th>
                 <th>Tipo de mantenimiento</th>
               </tr>
@@ -175,14 +196,16 @@
             <tbody>
               <tr v-for="truck in trucks" :key="truck.id" @click="selectedTruck = truck"
                 style="cursor: pointer; transition: background 0.2s;" class="hover:bg-gray-50">
-                <td style="font-weight: 600; color: #4f46e5;">{{ truck.plate }}</td>
-                <td>{{ truck.model }}</td>
-                <td>{{ truck.km.toLocaleString() }} km</td>
-                <td>{{ truck.maintenance }}</td>
+                <td style="font-weight: 600; color: #4f46e5;">{{ truck.placa }}</td>
+                <td>{{ truck.modelo }}</td>
+                <td>{{ truck.km_acumulado ? truck.km_acumulado.toLocaleString() : 0 }} km</td>
+                <td>{{ truck.ultima_fecha_intervencion || '-' }}</td>
+                <td>{{ truck.proximo_soat || '-' }}</td>
+                <td>{{ truck.fecha_intervencion || '-' }}</td>
                 <td>
-                  <v-chip :color="truck.maintenance_type === 'Preventivo/Programado' ? 'success' : 'warning'"
+                  <v-chip :color="truck.tipo_mantenimiento === 'Preventivo/Programado' ? 'success' : 'warning'"
                     size="small" class="font-weight-medium">
-                    {{ truck.maintenance_type }}
+                    {{ truck.tipo_mantenimiento }}
                   </v-chip>
                 </td>
               </tr>
@@ -519,35 +542,163 @@
         </div>
       </div>
 
-      <!-- Seguimiento View -->
+      <!-- Tareas del Personal / Time Tracking View -->
       <div v-if="currentView === 'tracking'" class="view-container">
-        <div class="two-column-grid">
-          <div class="chart-card">
-            <div class="chart-header">
-              <h2 class="chart-title">Mapa de Envíos en Tiempo Real</h2>
-            </div>
-            <div class="mock-map-large">
-              <v-icon icon="mdi-map-marker-radius" size="64" color="primary"></v-icon>
-              <p>Mapa Interactivo de Envíos (Google Maps / Mapbox)</p>
-            </div>
+        <!-- Stats Row -->
+        <div class="stats-row mb-6">
+          <div class="stat-card">
+            <div class="stat-header"><v-icon icon="mdi-account-group" /> <span>Personal Total</span></div>
+            <div class="stat-value">{{ staffList.length }}</div>
           </div>
+          <div class="stat-card">
+            <div class="stat-header"><v-icon icon="mdi-account-check" /> <span>Activos Ahora</span></div>
+            <div class="stat-value text-success">{{staffList.filter(s => s.status === 'active').length}}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header"><v-icon icon="mdi-coffee" /> <span>En Descanso</span></div>
+            <div class="stat-value text-warning">{{staffList.filter(s => s.status === 'break').length}}</div>
+          </div>
+        </div>
+
+        <div class="two-column-grid">
+          <!-- Left: My Time Clock -->
           <div class="chart-card">
             <div class="chart-header">
-              <h2 class="chart-title">Envíos Recientes</h2>
+              <h2 class="chart-title">Mi Marcador de Tiempo</h2>
             </div>
-            <div class="tracking-list">
-              <div class="tracking-item" v-for="j in 5" :key="j">
-                <div class="tracking-icon">
-                  <v-icon icon="mdi-truck-delivery" color="white" size="20"></v-icon>
-                </div>
-                <div class="tracking-info">
-                  <span class="tracking-id">#TRK-88{{ j }}9</span>
-                  <span class="tracking-status">En tránsito hacia Destino {{ j }}</span>
-                </div>
-                <span class="tracking-time">Hace {{ j }}h</span>
+            <div class="d-flex flex-column align-center justify-center py-8">
+              <div class="text-h2 font-weight-bold mb-2">{{ new Date().toLocaleTimeString([], {
+                hour: '2-digit', minute:
+                  '2-digit'
+              }) }}</div>
+              <div class="text-subtitle-1 text-grey mb-8">{{ new Date().toLocaleDateString([], {
+                weekday: 'long', year:
+                  'numeric', month: 'long', day: 'numeric'
+              }) }}</div>
+
+              <div class="d-flex gap-4 mb-6" style="gap: 1rem;">
+                <v-btn v-if="currentUserStatus === 'offline'" size="x-large" color="success" prepend-icon="mdi-login"
+                  @click="handleClockAction('clock-in')">
+                  Iniciar Turno
+                </v-btn>
+
+                <template v-else>
+                  <v-btn v-if="currentUserStatus === 'active'" size="large" color="warning" prepend-icon="mdi-coffee"
+                    @click="handleClockAction('break-start')">
+                    Iniciar Descanso
+                  </v-btn>
+                  <v-btn v-if="currentUserStatus === 'break'" size="large" color="info" prepend-icon="mdi-coffee-off"
+                    @click="handleClockAction('break-end')">
+                    Fin Descanso
+                  </v-btn>
+                  <v-btn size="large" color="error" prepend-icon="mdi-logout" @click="handleClockAction('clock-out')">
+                    Finalizar Turno
+                  </v-btn>
+                </template>
+              </div>
+
+              <div class="status-indicator d-flex align-center">
+                <v-icon
+                  :color="currentUserStatus === 'active' ? 'success' : (currentUserStatus === 'break' ? 'warning' : 'grey')"
+                  icon="mdi-circle-medium"></v-icon>
+                <span class="text-caption font-weight-bold text-uppercase"
+                  :class="currentUserStatus === 'active' ? 'text-success' : (currentUserStatus === 'break' ? 'text-warning' : 'text-grey')">
+                  {{ currentUserStatus === 'active' ? 'En Turno' : (currentUserStatus === 'break' ? 'En Descanso' :
+                    'Desconectado') }}
+                </span>
+                <span v-if="lastActionTime !== '--:--'" class="ml-2 text-caption text-grey">Desde {{ lastActionTime
+                }}</span>
               </div>
             </div>
           </div>
+
+          <!-- Right: Recent Activity Log -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <h2 class="chart-title">Registros Recientes</h2>
+            </div>
+            <div class="table-container" style="max-height: 300px; overflow-y: auto;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Hora</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="log in timeLogs" :key="log.id">
+                    <td>
+                      <div class="d-flex align-center">
+                        <v-avatar size="24" class="mr-2">
+                          <v-img src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
+                            v-if="log.user === 'Roberto Cáceres'"></v-img>
+                          <v-icon icon="mdi-account" v-else></v-icon>
+                        </v-avatar>
+                        {{ log.user }}
+                      </div>
+                    </td>
+                    <td>
+                      <v-chip size="x-small"
+                        :color="log.type === 'Entrada' || log.type === 'Fin Descanso' ? 'success' : (log.type === 'Salida' ? 'error' : 'warning')">
+                        {{ log.type }}
+                      </v-chip>
+                    </td>
+                    <td class="text-caption">{{ log.time }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Staff List Table -->
+        <div class="table-card mt-8">
+          <div class="card-header px-6 py-4 border-b d-flex justify-space-between align-center">
+            <h2 class="text-h6 font-weight-bold">Estado del Personal</h2>
+            <div class="d-flex gap-2">
+              <v-btn size="small" variant="text" icon="mdi-magnify"></v-btn>
+              <v-btn size="small" variant="text" icon="mdi-filter-variant"></v-btn>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Empleado</th>
+                <th>Rol</th>
+                <th>Estado Actual</th>
+                <th>Última Actividad</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="staff in staffList" :key="staff.id">
+                <td>
+                  <div class="d-flex align-center">
+                    <v-avatar size="32" class="mr-3">
+                      <v-img :src="staff.avatar"></v-img>
+                    </v-avatar>
+                    <div>
+                      <div class="font-weight-medium">{{ staff.name }}</div>
+                      <div class="text-caption text-grey">ID: #{{ 100 + staff.id }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ staff.role }}</td>
+                <td>
+                  <v-chip size="small"
+                    :color="staff.status === 'active' ? 'success' : (staff.status === 'break' ? 'warning' : 'grey')">
+                    <v-icon start icon="mdi-circle-medium"></v-icon>
+                    {{ staff.status === 'active' ? 'Activo' : (staff.status === 'break' ? 'Descanso' : 'Offline') }}
+                  </v-chip>
+                </td>
+                <td>{{ staff.last_action }}</td>
+                <td>
+                  <v-btn size="small" variant="text" icon="mdi-dots-vertical"></v-btn>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -692,8 +843,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import type { ApexOptions } from 'apexcharts'
+import {
+  isSuperAdmin,
+  canAccessGrijalva,
+  dashboards,
+  type UserSession
+} from '@/utils/permissions'
 
 // useTheme if needed for dark mode logic
 import { useTheme } from 'vuetify'
@@ -701,22 +858,104 @@ import { useTheme } from 'vuetify'
 const currentView = ref('dashboard')
 const client = useSupabaseClient()
 const router = useRouter()
+const showDashboardMenu = ref(false)
+
+const userSession = useCookie<UserSession | null>('dashboard_session')
+const currentUser = computed(() => userSession.value || { email: '', role: '', company_id: '' })
+
+function navigateTo(path: string) {
+  router.push(path)
+}
 
 const handleLogout = async () => {
   const { error } = await client.auth.signOut()
   if (error) {
     console.error('Error logging out:', error)
   }
+  userSession.value = null
   router.push('/')
 }
+
+const trucks = ref<any[]>([])
+
+const fetchTrucks = async () => {
+  const { data, error } = await client
+    .from('camionetas_grijalva')
+    .select('*')
+    .order('id', { ascending: true })
+
+  if (error) {
+    console.error('Error fetching trucks:', error)
+    return
+  }
+
+  if (data) {
+    // Map data if necessary or use directly if columns match. 
+    // Assuming columns: id, plate, brand, model, km, maintenance_date (mapped to maintenance), maintenance_type, etc.
+    // We'll map them to ensure frontend compatibility if needed, or stick to raw structure if it matches.
+    // For now, let's map to ensuring the structure matches our UI expectations, especially for the history which isn't in DB yet.
+
+    trucks.value = data.map((t: any) => {
+      // Generate valid fake history PROVISIONALLY to prevent valid fake errors in charts/tables until backend history table exists
+      // Real implementation would fetch from a separate 'maintenance_history' table
+      const history = Array.from({ length: 5 }, (_, j) => ({
+        date: `2024-01-${String(Math.floor(Math.random() * 25) + 1).padStart(2, '0')}`,
+        type: Math.random() > 0.7 ? 'Preventivo/Programado' : 'Correctivo',
+        driver: driversList[Math.floor(Math.random() * driversList.length)],
+        activity: activitiesList[Math.floor(Math.random() * activitiesList.length)],
+        observation: observationsList[Math.floor(Math.random() * observationsList.length)],
+        daily_km: Math.floor(Math.random() * 100) + 20,
+        daily_hours: Math.floor(Math.random() * 6) + 1
+      })).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
+      return {
+        ...t,
+        // Map DB columns (Spanish) to Frontend Props (English) for compatibility
+        id: t.id,
+        plate: t.placa || t.plate || '---',
+        brand: t.marca || t.brand || 'Toyota', // Fallback
+        model: t.modelo || t.model || 'Unknown',
+        year: t.anio || t.year || 2024,
+        km: t.km_acumulado || t.km || 0,
+        hours: t.horas || 0,
+
+        // Specs 
+        engine: t.motor || t.engine || 'N/A',
+        transmission: t.transmision || t.transmission || 'N/A',
+        fuel_capacity: t.capacidad_combustible || t.fuel_capacity || 'N/A',
+        load_capacity: t.capacidad_carga || t.load_capacity || 'N/A',
+        status: t.estado || t.status || 'Operativo',
+
+        // Maintenance
+        maintenance: t.fecha_intervencion || t.ultima_fecha_intervencion || t.maintenance || '',
+        maintenance_type: t.tipo_mantenimiento || t.maintenance_type || '',
+
+        // Extra
+        image: t.image || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=800',
+        maintenance_history: history,
+        next_soat: t.proximo_soat || t.next_soat || '',
+        next_technical_revision: t.proxima_revision_tecnica || t.next_technical_revision || ''
+      }
+    })
+  }
+}
+
+onMounted(() => {
+  if (!canAccessGrijalva(currentUser.value)) {
+    alert('No tienes permiso para acceder a este dashboard.')
+    router.push('/')
+    return
+  }
+  fetchTrucks()
+})
 
 const viewTitle = computed(() => {
   switch (currentView.value) {
     case 'dashboard': return 'Panel Principal'
     case 'document-analyzer': return 'Control de Camionetas'
-    case 'marketplace': return 'Mercado'
+    case 'marketplace': return 'EPPS'
     case 'orders': return 'Pedidos'
-    case 'tracking': return 'Seguimiento'
+    case 'tracking': return 'Tareas del personal'
     case 'discounts': return 'Descuentos'
     case 'ledger': return 'Libro Mayor'
     case 'taxes': return 'Impuestos'
@@ -783,43 +1022,7 @@ const observationsList = [
   'Sin novedades', 'Próximo cambio sugerido'
 ]
 
-const trucks = ref(Array.from({ length: 6 }, (_, i) => {
-  // Generate History First
-  const history = Array.from({ length: 5 }, (_, j) => ({
-    date: `2024-01-${String(Math.floor(Math.random() * 30) + 1).padStart(2, '0')}`,
-    type: Math.random() > 0.7 ? 'Preventivo/Programado' : 'Correctivo',
-    driver: driversList[Math.floor(Math.random() * driversList.length)],
-    activity: activitiesList[Math.floor(Math.random() * activitiesList.length)],
-    observation: observationsList[Math.floor(Math.random() * observationsList.length)],
-    daily_km: Math.floor(Math.random() * (300 - 50 + 1)) + 50,
-    daily_hours: Math.floor(Math.random() * (8 - 2 + 1)) + 2
-  })).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
-  // Calculate Totals based on history + base
-  const totalKm = 10000 + history.reduce((acc, curr) => acc + curr.daily_km, 0)
-  const totalHours = 100 + history.reduce((acc, curr) => acc + curr.daily_hours, 0)
-  const lastMaintenance = history[0].date
-
-  return {
-    id: i + 1,
-    plate: `ABC-${100 + i}`,
-    brand: ['Toyota', 'Ford', 'Nissan', 'Mitsubishi', 'Chevrolet'][i % 5],
-    model: ['Hilux', 'Ranger', 'Frontier', 'L200', 'Colorado'][i % 5],
-    km: totalKm,
-    maintenance: lastMaintenance,
-    maintenance_type: history[0].type, // Reflect latest type
-    hours: totalHours,
-    // Detailed Fields
-    year: 2020 + (i % 5),
-    engine: ['2.4L Diesel', '3.2L TDCI', '2.5L Turbo', '2.4L MIVEC', '2.8L Duramax'][i % 5],
-    transmission: (i % 2 === 0) ? 'Automática 6V' : 'Manual 5V',
-    fuel_capacity: '80 Litros',
-    load_capacity: '1000 Kg',
-    status: 'Operativo',
-    image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=800',
-    maintenance_history: history
-  }
-}))
 
 // --- COMPUTED PROPERTIES FOR DASHBOARD ---
 
@@ -898,6 +1101,60 @@ const driverStats = computed(() => {
 })
 
 const selectedTruck = ref<any>(null)
+
+// --- TIME TRACKING / TAREAS DEL PERSONAL LOGIC ---
+
+const staffList = ref([
+  { id: 1, name: 'Roberto Cáceres', role: 'Administrador', status: 'active', last_action: '08:00 AM', avatar: 'https://i.pravatar.cc/150?u=a042581f4e29026024d' },
+  { id: 2, name: 'Juan Pérez', role: 'Conductor', status: 'active', last_action: '07:45 AM', avatar: 'https://i.pravatar.cc/150?u=1' },
+  { id: 3, name: 'María Gonzalez', role: 'Logística', status: 'break', last_action: '12:30 PM', avatar: 'https://i.pravatar.cc/150?u=2' },
+  { id: 4, name: 'Carlos Ruiz', role: 'Mecánico', status: 'offline', last_action: 'Yesterday', avatar: 'https://i.pravatar.cc/150?u=3' },
+  { id: 5, name: 'Ana López', role: 'Asistente', status: 'active', last_action: '08:15 AM', avatar: 'https://i.pravatar.cc/150?u=4' },
+])
+
+const timeLogs = ref([
+  { id: 101, user: 'Roberto Cáceres', type: 'Entrada', time: '19 Feb, 08:00 AM', location: 'Oficina Principal' },
+  { id: 102, user: 'Juan Pérez', type: 'Entrada', time: '19 Feb, 07:45 AM', location: 'Almacén' },
+  { id: 103, user: 'María Gonzalez', type: 'Entrada', time: '19 Feb, 08:30 AM', location: 'Remoto' },
+  { id: 104, user: 'María Gonzalez', type: 'Inicio Descanso', time: '19 Feb, 12:30 PM', location: 'Remoto' },
+  { id: 105, user: 'Carlos Ruiz', type: 'Salida', time: '18 Feb, 06:00 PM', location: 'Taller' },
+])
+
+const currentUserStatus = ref('offline') // offline, active, break
+const lastActionTime = ref('--:--')
+
+const handleClockAction = (action: 'clock-in' | 'clock-out' | 'break-start' | 'break-end') => {
+  const now = new Date()
+  const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  const dateString = now.toLocaleDateString([], { day: 'numeric', month: 'short' })
+
+  let typeText = ''
+
+  if (action === 'clock-in') {
+    currentUserStatus.value = 'active'
+    typeText = 'Entrada'
+  } else if (action === 'clock-out') {
+    currentUserStatus.value = 'offline'
+    typeText = 'Salida'
+  } else if (action === 'break-start') {
+    currentUserStatus.value = 'break'
+    typeText = 'Inicio Descanso'
+  } else if (action === 'break-end') {
+    currentUserStatus.value = 'active'
+    typeText = 'Fin Descanso'
+  }
+
+  lastActionTime.value = timeString
+
+  // Add to log
+  timeLogs.value.unshift({
+    id: Date.now(),
+    user: 'Roberto Cáceres', // Current user mock
+    type: typeText,
+    time: `${dateString}, ${timeString}`,
+    location: 'Oficina Principal'
+  })
+}
 
 </script>
 
