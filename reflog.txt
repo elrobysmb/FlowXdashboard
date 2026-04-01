@@ -1,0 +1,5 @@
+﻿33dbde1 HEAD@{0}: checkout: moving from 33dbde1ecf8c3769d92b57279eab2e2fb55d2c9e to feature/appweb
+33dbde1 HEAD@{1}: commit: chore: ignore node_modules and update dashboard
+a1ae490 HEAD@{2}: pull origin main --rebase (start): checkout a1ae4908e1027de0e63794ca65546ecc6af88f21
+1455c05 HEAD@{3}: commit: feat: integraci├│n de inserci├│n SQL para tabla dashboardlogin
+39e9a75 HEAD@{4}: commit (initial): Initial commit

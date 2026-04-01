@@ -1,0 +1,78 @@
+﻿On branch feature/appweb
+Last command done (1 command done):
+   pick 1455c05 # feat: integraci├│n de inserci├│n SQL para tabla dashboardlogin
+No commands remaining.
+
+All conflicts fixed but you are still merging.
+  (use "git commit" to conclude merge)
+
+Changes to be committed:
+	new file:   .gitattributes
+	new file:   .github/dependabot.yml
+	modified:   .gitignore
+	new file:   .npmrc
+	new file:   .prettierignore
+	new file:   .prettierrc
+	modified:   LICENSE
+	modified:   README.md
+	new file:   assets/img/Aleflogo.png
+	new file:   assets/img/Logo_Origitec_Trans.png
+	new file:   assets/img/Logo_Origitec_Trans_white.png
+	new file:   assets/img/alegratedLOGO.jpg
+	new file:   assets/img/arroyoLOGO.jpg
+	new file:   assets/img/bradalogo.jpg
+	new file:   assets/img/futuristic_brain_login - Copy.png
+	new file:   assets/img/futuristic_brain_login.jpeg
+	new file:   assets/img/logoinv.png
+	modified:   assets/styles/dashboard.css
+	new file:   assets/styles/dashboard.css_backup
+	new file:   assets/styles/dashboardOLD.css
+	new file:   components/N8nPanicButton.vue
+	new file:   components/Settings/CreateUserDialog.vue
+	new file:   components/Settings/SettingsView.vue
+	new file:   layouts/grijalva.vue
+	modified:   middleware/auth-dashboard.ts
+	modified:   nuxt.config.ts
+	modified:   package-lock.json
+	modified:   package.json
+	new file:   pages/admin-hub.vue
+	new file:   pages/grijalva-web.vue
+	new file:   pages/grijalva/index.vue
+	modified:   pages/index.vue
+	modified:   pages/instancias/AlefCompany.vue
+	new file:   pages/instancias/Alegrated.vue
+	new file:   pages/instancias/BradaPerfumes.vue
+	new file:   pages/instancias/ClinicaArroyo.vue
+	modified:   pages/instancias/Grijalba.vue
+	new file:   pages/instancias/Healup.vue
+	new file:   pages/instancias/Origitec.vue
+	modified:   pages/instancias/Soletanche.vue
+	modified:   pages/signup/index.vue
+	new file:   server/api/auth/verify-legacy.post.ts
+	new file:   server/api/n8n/toggle-workflow.post.ts
+	new file:   server/api/users/create.post.ts
+	new file:   server/api/users/index.get.ts
+	new file:   supabase_schema.sql
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   .nuxt/components.d.ts
+	modified:   .nuxt/dev/index.mjs
+	modified:   .nuxt/dev/index.mjs.map
+	modified:   .nuxt/manifest/latest.json
+	modified:   .nuxt/manifest/meta/dev.json
+	modified:   .nuxt/nitro.json
+	modified:   .nuxt/nuxt.d.ts
+	modified:   .nuxt/types/components.d.ts
+	modified:   .nuxt/types/layouts.d.ts
+	modified:   .nuxt/types/nitro-routes.d.ts
+	modified:   .nuxt/types/schema.d.ts
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	reflog.txt
+	st.txt
+	status.txt
+	status2.txt
+

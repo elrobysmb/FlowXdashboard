@@ -1,0 +1,33 @@
+﻿On branch feature/appweb
+Last command done (1 command done):
+   pick 1455c05 # feat: integraci├│n de inserci├│n SQL para tabla dashboardlogin
+No commands remaining.
+You are currently editing a commit while rebasing branch 'main' on 'a1ae490'.
+  (use "git commit --amend" to amend the current commit)
+  (use "git rebase --continue" once you are satisfied with your changes)
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   .nuxt/components.d.ts
+	modified:   .nuxt/dev/index.mjs
+	modified:   .nuxt/dev/index.mjs.map
+	modified:   .nuxt/manifest/latest.json
+	modified:   .nuxt/manifest/meta/dev.json
+	modified:   .nuxt/nitro.json
+	modified:   .nuxt/nuxt.d.ts
+	modified:   .nuxt/types/components.d.ts
+	modified:   .nuxt/types/layouts.d.ts
+	modified:   .nuxt/types/nitro-routes.d.ts
+	modified:   .nuxt/types/schema.d.ts
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	error.txt
+	reflog.txt
+	st.txt
+	status.txt
+	status2.txt
+	status3.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
