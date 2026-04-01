@@ -186,26 +186,26 @@
               <tr>
                 <th>Placa</th>
                 <th>Modelo</th>
-                <th>Km acumulado</th>
-                <th>Ultima fecha de intervención</th>
-                <th>Próximo SOAT</th>
+                <th>KM ACTUAL</th>
+                <th>SOAT Fecha</th>
+                <th>Revision Fecha</th>
                 <th>Fecha de intervención</th>
                 <th>Tipo de mantenimiento</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="truck in trucks" :key="truck.id" @click="selectedTruck = truck"
+              <tr v-for="truck in trucks" :key="truck.id" @click="handleSelectTruck(truck)"
                 style="cursor: pointer; transition: background 0.2s;" class="hover:bg-gray-50">
-                <td style="font-weight: 600; color: #4f46e5;">{{ truck.placa }}</td>
-                <td>{{ truck.modelo }}</td>
-                <td>{{ truck.km_acumulado ? truck.km_acumulado.toLocaleString() : 0 }} km</td>
-                <td>{{ truck.ultima_fecha_intervencion || '-' }}</td>
-                <td>{{ truck.proximo_soat || '-' }}</td>
-                <td>{{ truck.fecha_intervencion || '-' }}</td>
+                <td style="font-weight: 600; color: #4f46e5; text-decoration: underline; cursor: pointer;">{{ truck.placa || truck.plate }}</td>
+                <td>{{ truck.modelo || truck.model }}</td>
+                <td>{{ truck.km_acumulado ? truck.km_acumulado.toLocaleString() : (truck.km ? truck.km.toLocaleString() : '0') }} km</td>
+                <td>{{ truck.proximo_soat || truck.next_soat || '-' }}</td>
+                <td>{{ truck.proxima_revision_tecnica || truck.next_technical_revision || '-' }}</td>
+                <td>{{ truck.fecha_intervencion || truck.maintenance || '-' }}</td>
                 <td>
-                  <v-chip :color="truck.tipo_mantenimiento === 'Preventivo/Programado' ? 'success' : 'warning'"
+                  <v-chip :color="truck.tipo_mantenimiento === 'Preventivo/Programado' || truck.tipo_mantenimiento === 'Preventivo' ? 'success' : 'warning'"
                     size="small" class="font-weight-medium">
-                    {{ truck.tipo_mantenimiento }}
+                    {{ truck.tipo_mantenimiento || truck.maintenance_type }}
                   </v-chip>
                 </td>
               </tr>
@@ -229,7 +229,7 @@
             <div class="detail-image-card"
               style="background: white; border-radius: 12px; padding: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
               <img :src="selectedTruck.image" alt="Truck Image"
-                style="width: 100%; height: auto; border-radius: 8px; object-fit: cover;" />
+                style="width: 100%; height: auto; border-radius: 8px; object-fit: cover; aspect-ratio: 4/3;" />
               <div class="status-badge mt-4 d-flex align-center justify-center"
                 style="background: #eef2ff; color: #4f46e5; padding: 0.5rem; border-radius: 6px; font-weight: 600;">
                 <v-icon icon="mdi-check-circle" size="18" class="mr-2"></v-icon>
@@ -245,47 +245,38 @@
               <div class="specs-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                 <!-- Spec Item -->
                 <div class="spec-item">
-                  <div class="text-caption text-grey">Año de Fabricación</div>
-                  <div class="text-h6">{{ selectedTruck.year }}</div>
+                  <div class="text-caption text-grey">Modelo</div>
+                  <div class="text-h6">{{ selectedTruck.modelo || selectedTruck.model || 'N/A' }}</div>
                 </div>
                 <!-- Spec Item -->
                 <div class="spec-item">
-                  <div class="text-caption text-grey">Motor</div>
-                  <div class="text-h6">{{ selectedTruck.engine }}</div>
+                  <div class="text-caption text-grey">Año</div>
+                  <div class="text-h6">{{ selectedTruck.anio || selectedTruck.year || 'N/A' }}</div>
                 </div>
                 <!-- Spec Item -->
                 <div class="spec-item">
-                  <div class="text-caption text-grey">Transmisión</div>
-                  <div class="text-h6">{{ selectedTruck.transmission }}</div>
+                  <div class="text-caption text-grey">KM ACTUAL</div>
+                  <div class="text-h6">{{ selectedTruck.km_acumulado ? selectedTruck.km_acumulado.toLocaleString() : (selectedTruck.km ? selectedTruck.km.toLocaleString() : '0') }} km</div>
                 </div>
                 <!-- Spec Item -->
                 <div class="spec-item">
-                  <div class="text-caption text-grey">Combustible</div>
-                  <div class="text-h6">{{ selectedTruck.fuel_capacity }}</div>
+                  <div class="text-caption text-grey">Estado SOAT</div>
+                  <div class="text-h6">{{ selectedTruck.estado_soat || selectedTruck.status || 'Vigente' }}</div>
                 </div>
                 <!-- Spec Item -->
                 <div class="spec-item">
-                  <div class="text-caption text-grey">Capacidad de Carga</div>
-                  <div class="text-h6">{{ selectedTruck.load_capacity }}</div>
+                  <div class="text-caption text-grey">SOAT Fecha</div>
+                  <div class="text-h6">{{ selectedTruck.proximo_soat || selectedTruck.next_soat || 'N/A' }}</div>
                 </div>
                 <!-- Spec Item -->
                 <div class="spec-item">
-                  <div class="text-caption text-grey">Último Mantenimiento</div>
-                  <div class="text-h6">{{ selectedTruck.maintenance }}</div>
+                  <div class="text-caption text-grey">Revision Fecha</div>
+                  <div class="text-h6">{{ selectedTruck.proxima_revision_tecnica || selectedTruck.next_technical_revision || 'N/A' }}</div>
                 </div>
-              </div>
-
-              <v-divider class="my-6"></v-divider>
-
-              <h3 class="text-h6 mb-4">Métricas Operativas</h3>
-              <div class="d-flex justify-space-between text-center">
-                <div>
-                  <div class="text-h4 font-weight-bold text-primary">{{ selectedTruck.km.toLocaleString() }}</div>
-                  <div class="text-caption">Kilometraje Total</div>
-                </div>
-                <div>
-                  <div class="text-h4 font-weight-bold text-primary">{{ selectedTruck.hours }}</div>
-                  <div class="text-caption">Horas Totales</div>
+                <!-- Spec Item -->
+                <div class="spec-item">
+                  <div class="text-caption text-grey">Rev Interna Fecha</div>
+                  <div class="text-h6">{{ selectedTruck.revision_interna_fecha || 'N/A' }}</div>
                 </div>
               </div>
             </div>
@@ -293,34 +284,62 @@
 
           <!-- History Table -->
           <div class="history-section mt-8">
-            <h2 class="text-h5 mb-4 font-weight-bold">Historial de Mantenimientos Diarios</h2>
-            <div class="table-card">
-              <table class="data-table">
+            <h2 class="text-h5 mb-4 font-weight-bold">Registro de mantenimiento</h2>
+            <div class="table-card" style="overflow-x: auto;">
+              <table class="data-table" style="min-width: 1800px;">
                 <thead>
                   <tr>
-                    <th>Fecha</th>
-                    <th>Tipo</th>
-                    <th>Conductor</th>
-                    <th>Km/Día</th>
-                    <th>Hrs/Día</th>
-                    <th>Actividad Realizada</th>
-                    <th>Detalle / Observación</th>
+                    <th>ID</th>
+                    <th>Responsable</th>
+                    <th>Marca Temporal</th>
+                    <th>KM Actual</th>
+                    <th>Fecha Intervención</th>
+                    <th>Tipo Mantenimiento</th>
+                    <th>Actividades Realizadas</th>
+                    <th>Detalle / Observaciones</th>
+                    <th>Evidencia URL</th>
+                    <th>Sistema Afectado</th>
+                    <th>Falla Reportada</th>
+                    <th>Acción Realizada</th>
+                    <th>Cambio Componente</th>
+                    <th>Detalle Componente</th>
+                    <th>Evidencia Sist. URL</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(record, index) in selectedTruck.maintenance_history" :key="index">
-                    <td>{{ record.date }}</td>
+                  <tr v-if="loadingMaintenance">
+                    <td colspan="15" class="text-center py-4">Cargando registros...</td>
+                  </tr>
+                  <tr v-else-if="maintenanceRecords.length === 0">
+                    <td colspan="15" class="text-center py-4 text-grey">No hay registros de mantenimiento para este vehículo.</td>
+                  </tr>
+                  <tr v-else v-for="record in maintenanceRecords" :key="record.id">
+                    <td>#{{ record.id }}</td>
+                    <td>{{ record.responsable || '-' }}</td>
+                    <td>{{ formatDate(record.marca_temporal) }}</td>
+                    <td>{{ record.km_actual || '-' }}</td>
+                    <td>{{ formatDate(record.fecha_intervencion) }}</td>
                     <td>
-                      <v-chip :color="record.type === 'Preventivo/Programado' ? 'success' : 'warning'" size="x-small"
+                      <v-chip :color="record.tipo_mantenimiento?.includes('Preventivo') ? 'success' : 'warning'" size="x-small"
                         class="font-weight-medium">
-                        {{ record.type }}
+                        {{ record.tipo_mantenimiento || '-' }}
                       </v-chip>
                     </td>
-                    <td class="text-capitalize">{{ record.driver }}</td>
-                    <td>{{ record.daily_km }} km</td>
-                    <td>{{ record.daily_hours }} hrs</td>
-                    <td>{{ record.activity }}</td>
-                    <td class="text-grey-darken-1">{{ record.observation }}</td>
+                    <td>{{ record.actividades_realizadas || '-' }}</td>
+                    <td class="text-grey-darken-1">{{ record.detalle_observaciones || '-' }}</td>
+                    <td>
+                      <a v-if="record.evidencia_url" href="#" @click.prevent="openImagePreview(record.evidencia_url)" class="text-primary font-weight-bold text-decoration-underline" style="cursor: pointer;">Ver imagen</a>
+                      <span v-else class="text-grey">-</span>
+                    </td>
+                    <td>{{ record.sistema_afectado || '-' }}</td>
+                    <td>{{ record.falla_reportada || '-' }}</td>
+                    <td>{{ record.accion_realizada || '-' }}</td>
+                    <td>{{ record.cambio_componente || '-' }}</td>
+                    <td>{{ record.detalle_componente_cambiado || '-' }}</td>
+                    <td>
+                      <a v-if="record.evidencia_sistema_url" href="#" @click.prevent="openImagePreview(record.evidencia_sistema_url)" class="text-primary font-weight-bold text-decoration-underline" style="cursor: pointer;">Ver imagen</a>
+                      <span v-else class="text-grey">-</span>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -839,6 +858,22 @@
       </div>
 
     </main>
+
+    <!-- Image Preview Modal -->
+    <v-dialog v-model="previewDialog" max-width="90vw">
+      <v-card class="bg-black">
+        <v-toolbar color="transparent" theme="dark">
+          <v-spacer></v-spacer>
+          <v-btn icon="mdi-close" @click="previewDialog = false"></v-btn>
+        </v-toolbar>
+        <div class="d-flex justify-center align-center pa-4" style="min-height: 50vh;">
+          <img v-if="previewImageUrl" :src="previewImageUrl" alt="Preview" style="max-width: 100%; max-height: 80vh; object-fit: contain;" />
+        </div>
+        <v-card-actions class="justify-center pb-6">
+          <v-btn color="primary" variant="flat" prepend-icon="mdi-download" @click="downloadImage">Descargar Imagen</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -882,7 +917,7 @@ const fetchTrucks = async () => {
   const { data, error } = await client
     .from('camionetas_grijalva')
     .select('*')
-    .order('id', { ascending: true })
+    .order('created_at', { ascending: true })
 
   if (error) {
     console.error('Error fetching trucks:', error)
@@ -896,48 +931,57 @@ const fetchTrucks = async () => {
     // For now, let's map to ensuring the structure matches our UI expectations, especially for the history which isn't in DB yet.
 
     trucks.value = data.map((t: any) => {
-      // Generate valid fake history PROVISIONALLY to prevent valid fake errors in charts/tables until backend history table exists
-      // Real implementation would fetch from a separate 'maintenance_history' table
-      const history = Array.from({ length: 5 }, (_, j) => ({
-        date: `2024-01-${String(Math.floor(Math.random() * 25) + 1).padStart(2, '0')}`,
-        type: Math.random() > 0.7 ? 'Preventivo/Programado' : 'Correctivo',
-        driver: driversList[Math.floor(Math.random() * driversList.length)],
-        activity: activitiesList[Math.floor(Math.random() * activitiesList.length)],
-        observation: observationsList[Math.floor(Math.random() * observationsList.length)],
-        daily_km: Math.floor(Math.random() * 100) + 20,
-        daily_hours: Math.floor(Math.random() * 6) + 1
-      })).sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
       return {
         ...t,
-        // Map DB columns (Spanish) to Frontend Props (English) for compatibility
-        id: t.id,
-        plate: t.placa || t.plate || '---',
-        brand: t.marca || t.brand || 'Toyota', // Fallback
-        model: t.modelo || t.model || 'Unknown',
-        year: t.anio || t.year || 2024,
-        km: t.km_acumulado || t.km || 0,
+        // Map DB columns to Frontend Props
+        id: t.Placa || t.id || Math.random().toString(),
+        plate: t.Placa || t.placa || '---',
+        placa: t.Placa || t.placa || '---',
+        brand: t.Marca || t.brand || t.marca || 'Toyota',
+        model: t.Modelo || t.model || t.modelo || 'Unknown',
+        modelo: t.Modelo || t.modelo || 'Unknown',
+        year: t['Año'] || t.anio || t.year || 2024,
+        anio: t['Año'] || t.anio || 2024,
+        km: t['KM ACTUAL'] || t.km_acumulado || t.km || 0,
+        km_acumulado: t['KM ACTUAL'] || t.km_acumulado || 0,
         hours: t.horas || 0,
 
         // Specs 
-        engine: t.motor || t.engine || 'N/A',
-        transmission: t.transmision || t.transmission || 'N/A',
-        fuel_capacity: t.capacidad_combustible || t.fuel_capacity || 'N/A',
-        load_capacity: t.capacidad_carga || t.load_capacity || 'N/A',
-        status: t.estado || t.status || 'Operativo',
+        engine: t.Motor || t.motor || t.engine || 'N/A',
+        transmission: t.Transmision || t.transmision || t.transmission || 'N/A',
+        fuel_capacity: t['Capacidad Combustible'] || t.capacidad_combustible || t.fuel_capacity || 'N/A',
+        load_capacity: t['Capacidad Carga'] || t.capacidad_carga || t.load_capacity || 'N/A',
+        status: t['Estado Soat'] || t.estado_soat || t.estado || t.status || 'Operativo',
+        estado_soat: t['Estado Soat'] || t.estado_soat || 'Operativo',
 
         // Maintenance
         maintenance: t.fecha_intervencion || t.ultima_fecha_intervencion || t.maintenance || '',
+        fecha_intervencion: t.fecha_intervencion || t.ultima_fecha_intervencion || '',
         maintenance_type: t.tipo_mantenimiento || t.maintenance_type || '',
+        tipo_mantenimiento: t.tipo_mantenimiento || '',
 
         // Extra
         image: t.image || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=800',
-        maintenance_history: history,
-        next_soat: t.proximo_soat || t.next_soat || '',
-        next_technical_revision: t.proxima_revision_tecnica || t.next_technical_revision || ''
+        next_soat: t['SOAT Fecha'] || t.proximo_soat || t.next_soat || '',
+        proximo_soat: t['SOAT Fecha'] || t.proximo_soat || '',
+        next_technical_revision: t['Revision Fecha'] || t.proxima_revision_tecnica || t.next_technical_revision || '',
+        proxima_revision_tecnica: t['Revision Fecha'] || t.proxima_revision_tecnica || '',
+        revision_interna_fecha: t['Revision Interna Fecha (OPCIONAL)'] || t.revision_interna_fecha || ''
       }
     })
   }
+}
+
+const allMaintenanceRecords = ref<any[]>([])
+
+const fetchAllMaintenance = async () => {
+    const { data, error } = await client
+      .from('Registro_mantenimiento__camionetas_GRIJALVA')
+      .select('*')
+    if (data) {
+       allMaintenanceRecords.value = data
+    }
 }
 
 onMounted(() => {
@@ -947,6 +991,7 @@ onMounted(() => {
     return
   }
   fetchTrucks()
+  fetchAllMaintenance()
 })
 
 const viewTitle = computed(() => {
@@ -1001,39 +1046,23 @@ const resetAnalyzer = () => {
   if (fileInput.value) fileInput.value.value = ''
 }
 
-// --- MOCK DATA & LISTS (Moved to top for computed access) ---
-
-// Mock Data Lists
-const driversList = [
-  'Juan Pérez', 'Carlos Quispe', 'Luis Flores', 'José Sánchez', 'Manuel Rojas',
-  'Jorge Mamani', 'Víctor Huamán', 'César Gutiérrez', 'Pedro Castillo', 'Miguel Torres',
-  'Ángel Ramos', 'Raúl Vargas', 'Julio Castro', 'Ricardo Mendoza', 'Eduardo Chávez'
-]
-
-const activitiesList = [
-  'Aceite motor + filtro aceite', 'Filtro de aire (motor)', 'Filtro de combustible (petroleo)',
-  'Filtro de aire acondicionado', 'Rotación de llantas', 'Cambio llantas (neumáticos)',
-  'Cambio batería', 'Cambio pastillas de freno', 'Revisión general (check)', 'Kit antiderrame', 'Otros: Revision de luces'
-]
-
-const observationsList = [
-  'Todo conforme', 'Desgaste moderado encontrado', 'Reemplazo preventivo', 'Nivel bajo rellenado',
-  'Ruido en suspensión revisado', 'Limpieza realizada', 'Ajuste de frenos necesario', 'OK',
-  'Sin novedades', 'Próximo cambio sugerido'
-]
-
-
-
 // --- COMPUTED PROPERTIES FOR DASHBOARD ---
 
 // 1. Maintenance Chart (Preventive vs Corrective)
 const maintenanceChartSeries = computed(() => {
-  const preventivos_data = trucks.value.map(t =>
-    t.maintenance_history.filter((h: any) => h.type === 'Preventivo/Programado').length
-  )
-  const correctivos_data = trucks.value.map(t =>
-    t.maintenance_history.filter((h: any) => h.type === 'Correctivo').length
-  )
+  const preventivos_data = trucks.value.map(t => {
+    return allMaintenanceRecords.value.filter((h: any) => 
+      (h.Placa === t.plate || h.placa === t.plate) && 
+      (h.tipo_mantenimiento?.includes('Preventivo') || h.tipo_mantenimiento?.includes('Programado'))
+    ).length
+  })
+  
+  const correctivos_data = trucks.value.map(t => {
+    return allMaintenanceRecords.value.filter((h: any) => 
+      (h.Placa === t.plate || h.placa === t.plate) && 
+      !(h.tipo_mantenimiento?.includes('Preventivo') || h.tipo_mantenimiento?.includes('Programado'))
+    ).length
+  })
 
   return [
     { name: 'Preventivo/Programado', data: preventivos_data },
@@ -1077,30 +1106,123 @@ const kmChartOptions = computed<ApexOptions>(() => ({
 
 // 3. Driver Stats Matrix
 const driverStats = computed(() => {
-  // Init map for all drivers
   const stats: Record<string, { driver: string, trucks: Record<number, number>, total: number }> = {}
-  driversList.forEach(d => {
+  
+  // Extraer todos los responsables únicos
+  const driversSet = new Set<string>()
+  allMaintenanceRecords.value.forEach(record => {
+    if (record.responsable) {
+      driversSet.add(record.responsable)
+    }
+  })
+
+  // Inicializar contadores a 0
+  driversSet.forEach(d => {
     stats[d] = { driver: d, trucks: {}, total: 0 }
     trucks.value.forEach(t => { stats[d].trucks[t.id] = 0 })
   })
 
-  // Fill from history
-  trucks.value.forEach(t => {
-    t.maintenance_history.forEach((h: any) => {
-      if (stats[h.driver]) {
-        stats[h.driver].trucks[t.id] = (stats[h.driver].trucks[t.id] || 0) + 1
-        stats[h.driver].total++
-      }
-    })
+  // Llenar datos haciendo match de placa
+  allMaintenanceRecords.value.forEach(record => {
+    if (!record.responsable) return
+    const truck = trucks.value.find(t => t.plate === record.Placa || t.plate === record.placa)
+    if (truck && stats[record.responsable]) {
+      stats[record.responsable].trucks[truck.id] = (stats[record.responsable].trucks[truck.id] || 0) + 1
+      stats[record.responsable].total++
+    }
   })
 
-  // Convert to array and sort by total activity
+  // Convertir a array y ordenar
   return Object.values(stats)
     .sort((a, b) => b.total - a.total)
-    .filter(s => s.total > 0) // Only show active drivers if preferred, or keep all
+    .filter(s => s.total > 0)
 })
 
 const selectedTruck = ref<any>(null)
+
+// --- CONTROL DE CAMIONETAS LOGIC ---
+const maintenanceRecords = ref<any[]>([])
+const loadingMaintenance = ref(false)
+const previewDialog = ref(false)
+const previewImageUrl = ref('')
+
+const handleSelectTruck = async (truck: any) => {
+  selectedTruck.value = truck
+  const placa = truck.placa || truck.plate
+  if (placa) {
+    await fetchMaintenanceForTruck(placa)
+  }
+}
+
+const fetchMaintenanceForTruck = async (placa: string) => {
+  loadingMaintenance.value = true
+  maintenanceRecords.value = []
+  try {
+    // Intentaremos con 'Placa' porque la tabla de camiones usa 'Placa' con mayuscula.
+    // Si la tabla fue creada por interfaz de Supabase, a veces las capitaliza y otras no.
+    let { data, error } = await client
+      .from('Registro_mantenimiento__camionetas_GRIJALVA')
+      .select('*')
+      .eq('placa', placa)
+      .order('fecha_intervencion', { ascending: false })
+      
+    if (error && error.code === '42703') { // column does not exist
+       const retry = await client
+        .from('Registro_mantenimiento__camionetas_GRIJALVA')
+        .select('*')
+
+       if (retry.data && retry.data.length > 0) {
+         // Fallback if needed but for now we ignore if we can't fetch.
+       }
+    }
+
+    if (error) {
+       // fallback try 'Placa' if 'placa' failed
+       const retry = await client
+        .from('Registro_mantenimiento__camionetas_GRIJALVA')
+        .select('*')
+        .eq('Placa', placa)
+        .order('fecha_intervencion', { ascending: false })
+        
+        if (retry.data) data = retry.data
+        else throw retry.error || error
+    }
+    
+    if (data) {
+      maintenanceRecords.value = data
+    }
+  } catch (error) {
+    console.error('Unexpected error fetching maintenance records:', error)
+  } finally {
+    loadingMaintenance.value = false
+  }
+}
+
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return '-'
+  try {
+    return new Date(dateString).toLocaleDateString('es-PE')
+  } catch {
+    return dateString
+  }
+}
+
+const openImagePreview = (url: string) => {
+  if (!url) return
+  previewImageUrl.value = url
+  previewDialog.value = true
+}
+
+const downloadImage = () => {
+  if (!previewImageUrl.value) return
+  const a = document.createElement('a')
+  a.href = previewImageUrl.value
+  a.target = '_blank'
+  a.download = 'evidencia-mantenimiento'
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+}
 
 // --- TIME TRACKING / TAREAS DEL PERSONAL LOGIC ---
 
