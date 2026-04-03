@@ -1,1 +1,1 @@
-export { default } from "file:///C:/Users/elrob/Desktop/khozaz/trabajos/flowx/DASHBOARDv1flowx/flowxdashboard/flowxdashboardv3/node_modules/@nuxt/vite-builder/dist/runtime/vite-node.mjs"
+export { default } from "file:///home/roby/flowxdashboardv3%201-4-25/flowxdashboardv3/node_modules/@nuxt/vite-builder/dist/vite-node-entry.mjs"

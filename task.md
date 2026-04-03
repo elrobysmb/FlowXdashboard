@@ -1,0 +1,8 @@
+- [ ] Update Vuetify theme in plugins/vuetify.ts to light mode with new colors
+- [ ] Add CSS variables for new palette in assets/main.scss
+- [ ] Override utility classes (.bg-dark-*, .text-grey-lighten-1) to use white background and black text
+- [ ] Replace all hard‑coded green hex codes with #99CC33
+- [ ] Replace all hard‑coded blue hex codes with #1A4B99
+- [ ] Ensure background colors are set to white across components
+- [ ] Run grep to verify no old color codes remain
+- [ ] Manual visual check of key pages

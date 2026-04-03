@@ -1,9 +1,9 @@
 {
-  "_hash": "S3LsBtRDS9089bDBMHCXallIZaUJf2vY7CYnsne7F-E",
+  "_hash": "F5422tGesFdPSjv7eb85GWht9swvSTyXqB-LoRQzpHY",
   "project": {
-    "rootDir": "C:/Users/elrob/Desktop/khozaz/trabajos/flowx/DASHBOARDv1flowx/flowxdashboard/flowxdashboardv3"
+    "rootDir": "/home/roby/flowxdashboardv3 1-4-25/flowxdashboardv3"
   },
   "versions": {
-    "nuxt": "3.20.0"
+    "nuxt": "3.21.2"
   }
 }

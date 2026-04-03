@@ -2,7 +2,8 @@
 export const dashboards = [
     { name: 'Grijalva', path: '/instancias/Grijalva', icon: 'mdi-domain', logo: 'grijalvalogo.png' },
     { name: 'Soletanche', path: '/instancias/Soletanche', icon: 'mdi-domain', logo: 'soletanche_logo.jpg' },
-    { name: 'Jamleo SAC', path: '/instancias/Jamleo', icon: 'mdi-truck', logo: 'Jamleo SAC LOGO.jpeg' }
+    { name: 'Jamleo SAC', path: '/instancias/Jamleo', icon: 'mdi-truck', logo: 'Jamleo SAC LOGO.jpeg' },
+    { name: 'Web Grijalva', path: '/web', icon: 'mdi-web', logo: 'grijalvalogo.png' }
 ]
 
 // Tipos para la sesión de usuario
