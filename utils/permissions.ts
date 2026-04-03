@@ -1,8 +1,9 @@
 // Definición de Dashboards
 export const dashboards = [
-    { name: 'Grijalva', path: '/instancias/Grijalba', icon: 'mdi-domain', logo: 'grijalvalogo.png' },
+    { name: 'Grijalva', path: '/instancias/Grijalva', icon: 'mdi-domain', logo: 'grijalvalogo.png' },
     { name: 'Soletanche', path: '/instancias/Soletanche', icon: 'mdi-domain', logo: 'soletanche_logo.jpg' },
-    { name: 'Jamleo SAC', path: '/instancias/Jamleo', icon: 'mdi-truck', logo: 'Jamleo SAC LOGO.jpeg' }
+    { name: 'Jamleo SAC', path: '/instancias/Jamleo', icon: 'mdi-truck', logo: 'Jamleo SAC LOGO.jpeg' },
+    { name: 'Web Grijalva', path: '/web', icon: 'mdi-web', logo: 'grijalvalogo.png' }
 ]
 
 // Tipos para la sesión de usuario
@@ -141,7 +142,7 @@ export function getDashboardPathByCompanyId(companyId: string | undefined | null
     if (normalizedId === 'alegrated' || normalizedId.includes('alegrated')) return '/instancias/Alegrated'
     if (normalizedId === 'clinica arroyo' || normalizedId === 'clinicaarroyo' || normalizedId.includes('arroyo')) return '/instancias/ClinicaArroyo'
     if (normalizedId === 'origitec' || normalizedId.includes('origitec')) return '/instancias/Origitec'
-    if (normalizedId === 'grijalva' || normalizedId.includes('grijalva')) return '/instancias/Grijalba'
+    if (normalizedId === 'grijalva' || normalizedId.includes('grijalva')) return '/instancias/Grijalva'
     if (normalizedId === 'soletanche' || normalizedId.includes('soletanche')) return '/instancias/Soletanche'
     if (normalizedId === 'jamleo' || normalizedId.includes('jamleo')) return '/instancias/Jamleo'
 

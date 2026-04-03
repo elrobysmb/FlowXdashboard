@@ -1,1 +1,4 @@
-export { default } from "file:///C:/Users/elrob/Desktop/khozaz/trabajos/flowx/DASHBOARDv1flowx/flowxdashboard/flowxdashboardv3/node_modules/@nuxt/vite-builder/dist/runtime/client.manifest.mjs"
+
+import { viteNodeFetch } from "file:///home/roby/flowxdashboardv3%201-4-25/flowxdashboardv3/node_modules/@nuxt/vite-builder/dist/vite-node.mjs"
+export default () => viteNodeFetch.getManifest()
+    

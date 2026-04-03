@@ -14,8 +14,8 @@
                 <div class="logo d-flex align-center gap-2">
                     <v-icon icon="mdi-shield-check" color="green-lighten-1" size="32"></v-icon> &nbsp;
                     <div class="d-flex flex-column" style="line-height: 1;">
-                        <span class="text-blue-darken-4 font-weight-black text-h5 tracking-wide">GRIJALVA</span>
-                        <span class="text-green-lighten-1 font-weight-bold text-caption text-end"
+                        <span class="text-blue font-weight-black text-h5 tracking-wide">GRIJALVA</span>
+                        <span class="text-green font-weight-bold text-caption text-end"
                             style="letter-spacing: 2px;">COMPANY</span>
                     </div>
                 </div>
@@ -150,22 +150,19 @@ onUnmounted(() => {
 /* Global Styles for Grijalba Website - LIGHT THEME */
 .grijalva-web {
     background-color: #FFFFFF;
-    color: #334155;
-    /* Slate 700 */
+    color: #333333;
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
 }
 
 /* Colors from Palette */
-.text-blue-darken-4 {
-    color: #1E56A0 !important;
+.text-blue {
+    color: #1A4B99 !important;
 }
 
-.text-green-lighten-1 {
-    color: #9ACA3C !important;
+.text-green {
+    color: #99CC33 !important;
 }
-
-/* Lime Green */
 
 .container {
     max-width: 1200px;
@@ -191,8 +188,7 @@ onUnmounted(() => {
 
 /* Top Bar */
 .top-bar {
-    background-color: #9ACA3C;
-    /* Bright Green */
+    background-color: #99CC33;
     color: white;
     font-size: 0.85rem;
     position: relative;
@@ -213,8 +209,7 @@ onUnmounted(() => {
 }
 
 .nav-link {
-    color: #1E56A0;
-    /* Blue */
+    color: #1A4B99;
     text-decoration: none;
     font-weight: 700;
     font-size: 0.9rem;
@@ -225,8 +220,7 @@ onUnmounted(() => {
 
 .nav-link:hover,
 .nav-link.active {
-    color: #9ACA3C;
-    /* Green */
+    color: #99CC33;
 }
 
 .nav-link.active::after {
@@ -236,14 +230,13 @@ onUnmounted(() => {
     left: 0;
     width: 100%;
     height: 3px;
-    background: #9ACA3C;
+    background: #99CC33;
     border-radius: 2px;
 }
 
 /* Footer */
 .footer-section {
-    background-color: #333333;
-    /* Dark Grey */
+    background-color: #1A4B99;
     color: white;
 }
 
@@ -257,18 +250,18 @@ onUnmounted(() => {
 }
 
 .footer-links a {
-    color: #9CA3AF;
+    color: rgba(255,255,255,0.75);
     text-decoration: none;
     transition: color 0.2s;
 }
 
 .footer-links a:hover {
-    color: #9ACA3C;
+    color: #99CC33;
 }
 
 .newsletter-input {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 4px 0 0 4px;
     padding: 0.75rem 1rem;
     color: white;
@@ -277,7 +270,7 @@ onUnmounted(() => {
 }
 
 .newsletter-btn {
-    background: #9ACA3C;
+    background: #99CC33;
     border: none;
     color: white;
     padding: 0 1.5rem;
@@ -287,7 +280,7 @@ onUnmounted(() => {
 }
 
 .newsletter-btn:hover {
-    background: #82B325;
+    background: #7aaa1c;
 }
 
 /* WhatsApp Floating Button */
