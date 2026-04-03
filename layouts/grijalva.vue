@@ -121,7 +121,7 @@
                 </v-row>
                 <v-divider class="my-8 border-opacity-10" color="white"></v-divider>
                 <div class="text-center text-caption text-grey">
-                    &copy; {{ new Date().getFullYear() }} Grijalba Company S.A.C. Todos los derechos reservados.
+                    &copy; {{ new Date().getFullYear() }} Grijalva Company S.A.C. Todos los derechos reservados.
                 </div>
             </div>
         </footer>

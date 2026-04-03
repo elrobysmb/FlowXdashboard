@@ -1,5 +1,6 @@
 /// <reference types="@nuxtjs/supabase" />
 /// <reference types="@vite-pwa/nuxt" />
+/// <reference types="@nuxt/devtools" />
 /// <reference types="@nuxt/telemetry" />
 /// <reference types="@nuxt/devtools" />
 /// <reference path="types/nitro-layouts.d.ts" />
